@@ -245,7 +245,7 @@ show etherchannel summary # Confirm all expected members are bundled.
 | Type           | Location                                                                         |
 | -------------- | -------------------------------------------------------------------------------- |
 | Configurations | [`configs/`](configs/)                                                           |
-| Diagram        | [`topology/diagram.svg`](topology/etherchannel.svg)                                   |
+| Diagram        | [`topology/diagram.svg`](topology/diagram.svg)                                   |
 | Topology File  | [`topology/topology.yaml`](topology/topology.yaml)                               |
 | Verification   | [`verification/verification_commands.md`](verification/verification_commands.md) |
 
@@ -258,4 +258,3 @@ show etherchannel summary # Confirm all expected members are bundled.
 | Lab Version  | 1.0           |
 | Last Updated | 2026-06-28    |
 | Author       | Aaron Kindelt |
-
