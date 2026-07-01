@@ -28,7 +28,10 @@ This lab validates LACP negotiation, port-channel formation, bundled member inte
 
 The topology uses three Layer 2 switches connected in a triangle. Each switch pair has two physical links bundled into one LACP EtherChannel.
 
-![Topology Diagram](topology/etherchannel.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 **Note:** STP sees each port-channel as a single logical link rather than as separate physical member interfaces. The physical topology has six links, but the logical Layer 2 topology is a triangle of three port-channels.
 
@@ -255,3 +258,4 @@ show etherchannel summary # Confirm all expected members are bundled.
 | Lab Version  | 1.0           |
 | Last Updated | 2026-06-28    |
 | Author       | Aaron Kindelt |
+
