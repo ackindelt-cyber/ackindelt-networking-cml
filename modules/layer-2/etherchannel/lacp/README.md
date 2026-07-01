@@ -30,7 +30,7 @@ The topology uses three Layer 2 switches connected in a triangle. Each switch pa
 
 Topology artifacts are available in the `topology/` folder.
  
-- [Open topology diagram](topology/diagram.png)
+- [Open topology diagram](topology/diagram.svg)
 - [Open CML topology export](topology/topology.yaml)
 
 **Note:** STP sees each port-channel as a single logical link rather than as separate physical member interfaces. The physical topology has six links, but the logical Layer 2 topology is a triangle of three port-channels.
@@ -245,7 +245,7 @@ show etherchannel summary # Confirm all expected members are bundled.
 | Type           | Location                                                                         |
 | -------------- | -------------------------------------------------------------------------------- |
 | Configurations | [`configs/`](configs/)                                                           |
-| Diagram        | [`topology/diagram.svg`](topology/diagram.png)                                   |
+| Diagram        | [`topology/diagram.svg`](topology/diagram.svg)                                   |
 | Topology File  | [`topology/topology.yaml`](topology/topology.yaml)                               |
 | Verification   | [`verification/verification_commands.md`](verification/verification_commands.md) |
 
