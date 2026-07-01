@@ -32,7 +32,10 @@ This lab validates interface addressing, default static route configuration, rou
 
 The topology uses two routers connected by a point-to-point link. Each router has one LAN segment.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

@@ -119,3 +119,11 @@ These modules are building blocks.
 Each one validates a specific technology or behavior in isolation. Once the behavior is understood and documented, the useful patterns can be used as reference material for runbooks and future enterprise-network implementation.
 
 A module does not need to look like a full production topology to be useful. It needs to clearly show the technology, the expected behavior, the verification method, and the practical lessons from the lab.
+
+## CML VLAN Export Limitation
+ 
+Cisco CML topology exports and exported device configuration files may not preserve VLAN database state.
+ 
+For VLAN-based labs, VLAN IDs, VLAN names, and intended VLAN design are documented in the module README. The "topology.yaml" file should be treated as the source of truth for CML node/link layout only. Exported device configuration files may include interface-level VLAN assignments, trunk settings, SVIs, and routing configuration, but they should not be relied on as the only source for VLAN database information.
+ 
+When rebuilding or reviewing VLAN-based labs, use the module README VLAN tables and configuration notes as the authoritative reference for VLAN design.

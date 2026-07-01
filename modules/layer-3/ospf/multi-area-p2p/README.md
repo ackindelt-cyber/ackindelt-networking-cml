@@ -36,7 +36,10 @@ This lab validates interface addressing, point-to-point OSPF neighbor formation,
 
 The topology uses five routers connected with point-to-point links. Area 1 sits on the left side of the topology, Area 0 forms the backbone, and Area 2 sits on the right side.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

@@ -35,8 +35,10 @@ This lab validates NAT inside and outside interface roles, static one-to-one NAT
 
 The topology uses an inside LAN, a customer edge router, a simulated ISP router, and an outside host network.
 
-![Topology Diagram](topology/diagram.svg)
-
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 ---
 
 ## Network Summary

@@ -25,7 +25,10 @@ Static EtherChannel does not use a negotiation protocol. If the bundle is miscon
 
 The topology uses three Layer 2 switches with static EtherChannel bundles between each switch pair.
 
-![Topology Diagram](topology/etherchannel.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

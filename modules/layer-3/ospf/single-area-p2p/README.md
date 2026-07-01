@@ -34,7 +34,10 @@ This lab validates interface addressing, OSPF neighbor formation, point-to-point
 
 The topology uses two routers connected by a point-to-point `/30` link. Each router has one directly connected LAN segment with one test client.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

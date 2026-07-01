@@ -33,7 +33,10 @@ This lab validates DHCP exclusions, DHCP pools, client address assignment, dynam
 
 The topology uses one router, one switch, and two clients. R1 provides router-on-a-stick inter-VLAN routing and DHCP services for VLAN 10 and VLAN 20.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

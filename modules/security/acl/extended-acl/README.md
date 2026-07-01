@@ -32,8 +32,10 @@ The ACL is applied inbound on R1’s inside LAN interface. This places the filte
 
 The topology uses an inside LAN, a customer edge router, an ISP router, and an outside server network.
 
-![Topology Diagram](topology/diagram.svg)
-
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 ---
 
 ## Network Summary

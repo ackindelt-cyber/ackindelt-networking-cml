@@ -32,7 +32,10 @@ Traffic from inside clients C1 and C3 is generated toward the outside host at `2
 
 The topology uses an inside LAN, a customer edge router, an ISP-side router, and an outside host network.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

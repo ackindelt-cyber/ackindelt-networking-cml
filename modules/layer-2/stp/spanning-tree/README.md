@@ -29,7 +29,10 @@ This lab validates root bridge election, port roles, port states, manual root br
 
 The topology uses three Layer 2 switches connected in a triangle. This intentionally creates redundant Layer 2 paths so STP can elect a root bridge, assign port roles, block the redundant path, and reconverge after a simulated link failure.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 **Note:** This topology intentionally creates a Layer 2 loop. STP must be enabled and functioning before all links are allowed to forward. Running this topology without STP protection could cause a broadcast storm.
 

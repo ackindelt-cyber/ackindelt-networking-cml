@@ -34,7 +34,10 @@ This lab validates HSRP group configuration, active and standby router roles, vi
 
 The topology uses two routers, one Layer 2 switch, and one client. R1 and R2 connect to the same LAN segment and share the HSRP virtual gateway address `192.168.10.1`.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 
