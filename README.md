@@ -29,11 +29,13 @@ The goal is to show practical engineering workflow, not just configuration synta
 This README is the best starting point for reviewing the repository. It explains the purpose, structure, current status, and how the lab artifacts are intended to be evaluated.
 
 For a quick technical review:
-
+ 
 * Start with this `README.md`.
 * Read [`docs/other/prospective-employer.md`](docs/other/prospective-employer.md) for guidance on how to evaluate the repository.
-* Open one complete module under `modules/` to review the lab structure, configurations, topology files, verification notes, and reflections.
-* Review `docs/runbooks/` to see reusable configuration and validation workflows.
+* Review the recommended first module: [`SVI Inter-VLAN Routing`](modules/layer-2/vlan/svi/README.md).
+* Review a second module if time allows: [`LACP EtherChannel`](modules/layer-2/etherchannel/lacp/README.md).
+* Review the recommended first runbook: [`VLAN Trunks, SVIs, and Inter-VLAN Routing`](docs/runbooks/configuration/vlan-trunks-svi-inter-vlan-routing.md).
+* Review [`docs/runbooks/`](docs/runbooks/) for additional reusable configuration and validation workflows.
 
 The repository is intended to support technical discussion. It is not just a collection of finished configs.
 

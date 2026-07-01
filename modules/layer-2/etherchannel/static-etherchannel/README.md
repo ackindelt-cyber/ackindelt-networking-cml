@@ -146,8 +146,6 @@ write memory # Saves the running configuration.
 
 ---
 
- ## Verification
-
 ## Verification
 
 See [`verification/verification_commands.md`](verification/verification_commands.md) for recorded command output.
@@ -225,7 +223,7 @@ show interfaces gigabitEthernet0/x etherchannel # Check why the interface is not
 | Type           | Location                                                                         |
 | -------------- | -------------------------------------------------------------------------------- |
 | Configurations | [`configs/`](configs/)                                                           |
-| Diagram        | [`topology/etherchannel.svg`](topology/etherchannel.svg)                         |
+| Diagram        | [`topology/diagram.svg`](topology/diagram.svg)                         |
 | Topology File  | [`topology/topology.yaml`](topology/topology.yaml)                               |
 | Verification   | [`verification/verification_commands.md`](verification/verification_commands.md) |
 

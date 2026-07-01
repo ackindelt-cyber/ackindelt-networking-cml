@@ -11,12 +11,13 @@ For a broad overview of the repository purpose, structure, and current focus, st
 For the quickest review, start with the root `README.md`, then use this guide to evaluate the technical artifacts.
 
 A practical review path is:
-
-1. Read the root `README.md` for repository purpose, structure, and current status.
-2. Open one complete module under `modules/`.
-3. Review the module README, configurations, topology files, verification notes, and lab reflections.
-4. Review `docs/runbooks/` to see reusable configuration and validation workflows.
-5. Review `enterprise-network/` for planned integration of validated patterns.
+ 
+1. Read the root [`README.md`](../../README.md) for repository purpose, structure, and current status.
+2. Review the recommended first module: [`SVI Inter-VLAN Routing`](../../modules/layer-2/vlan/svi/README.md).
+3. Review a second module if time allows: [`LACP EtherChannel`](../../modules/layer-2/etherchannel/lacp/README.md).
+4. Review the recommended first runbook: [`VLAN Trunks, SVIs, and Inter-VLAN Routing`](../runbooks/configuration/vlan-trunks-svi-inter-vlan-routing.md).
+5. Review additional runbooks under [`docs/runbooks/`](../runbooks/) to see reusable configuration and validation workflows.
+6. Review [`enterprise-network/`](../../enterprise-network/) for planned integration of validated patterns.
 
 A strong module should make it clear:
 
