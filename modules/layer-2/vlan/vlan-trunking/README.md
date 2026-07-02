@@ -14,13 +14,6 @@ This lab validates VLAN creation, access-port assignment, 802.1Q trunk configura
 
 ---
 
-Topology artifacts are available in the `topology/` folder.
- 
-- [Open topology diagram](topology/diagram.svg)
-- [Open CML topology export](topology/topology.yaml)
-
----
-
 **CML VLAN Export Note:** Cisco CML topology exports and exported device configuration files may not preserve VLAN database state. VLAN IDs, VLAN names, and intended VLAN design are documented in this README and should not be inferred from "topology.yaml" or exported configs alone.
 
 ---
@@ -43,8 +36,10 @@ Topology artifacts are available in the `topology/` folder.
 
 The topology uses two Layer 2 switches connected by one trunk link. Each switch has one client in VLAN 10 and one client in VLAN 20.
 
-![Topology Diagram](topology/diagram.svg)
-
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 ---
 
 ## Addressing Tables

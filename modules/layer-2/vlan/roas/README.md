@@ -14,11 +14,6 @@ This lab validates VLAN creation, trunk configuration, router subinterfaces, int
 
 ---
 
-- [Open topology diagram](topology/diagram.svg)
-- [Open CML topology export](topology/topology.yaml)
-  
----
-
 **CML VLAN Export Note:** Cisco CML topology exports and exported device configuration files may not preserve VLAN database state. VLAN IDs, VLAN names, and intended VLAN design are documented in this README and should not be inferred from "topology.yaml" or exported configs alone.
 
 ---
@@ -40,7 +35,10 @@ This lab validates VLAN creation, trunk configuration, router subinterfaces, int
 
 The topology uses one router, two Layer 2 switches, and four clients. R1 routes between VLAN 10 and VLAN 20 using subinterfaces on a single physical trunk connection to S1.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 

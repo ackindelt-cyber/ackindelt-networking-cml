@@ -14,13 +14,6 @@ This lab validates VLAN creation, VLAN naming, access-port assignment, PortFast 
 
 ---
 
-Topology artifacts are available in the `topology/` folder.
- 
-- [Open topology diagram](topology/diagram.svg)
-- [Open CML topology export](topology/topology.yaml)
-
----
-
 **CML VLAN Export Note:** Cisco CML topology exports and exported device configuration files may not preserve VLAN database state. VLAN IDs, VLAN names, and intended VLAN design are documented in this README and should not be inferred from "topology.yaml" or exported configs alone.
 
 ---
@@ -42,7 +35,10 @@ Topology artifacts are available in the `topology/` folder.
 
 The topology uses one Layer 2 switch and four clients. C1 and C2 are assigned to VLAN 10. C3 and C4 are assigned to VLAN 20.
 
-![Topology Diagram](topology/diagram.svg)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 
