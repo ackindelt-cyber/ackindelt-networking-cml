@@ -12,6 +12,13 @@ This lab validates VLAN creation, trunk configuration, router subinterfaces, int
 
 **End-to-End Verification:** Successful
 
+---
+
+- [Open topology diagram](topology/diagram.svg)
+- [Open CML topology export](topology/topology.yaml)
+  
+---
+
 **CML VLAN Export Note:** Cisco CML topology exports and exported device configuration files may not preserve VLAN database state. VLAN IDs, VLAN names, and intended VLAN design are documented in this README and should not be inferred from "topology.yaml" or exported configs alone.
 
 ---
