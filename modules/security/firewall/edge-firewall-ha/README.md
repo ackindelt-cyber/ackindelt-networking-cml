@@ -14,14 +14,14 @@ End-to-End Verification: Not Tested
 
 ## Objectives
 
-* [ ] Configure the shared outside transit VLAN between R1 and both ASAv outside interfaces.
-* [ ] Configure an ASAv Active/Standby failover pair with role-based inside and outside addressing.
-* [ ] Configure a dedicated failover and state link for HA communication and state synchronization.
-* [ ] Configure VLAN 99 as the shared firewall transit network between the ASAv pair and D1/D2.
-* [ ] Configure HSRP on VLANs 10 and 99 and align the VLAN 10 Spanning Tree root with the preferred HSRP active switch.
-* [ ] Configure static routing, ICMP inspection, and dynamic PAT for the internal test network.
-* [ ] Verify Layer 2, Layer 3, NAT, HA synchronization, and end-to-end connectivity.
-* [ ] Validate manual switchover and automatic recovery from firewall-link, firewall-node, and distribution-switch failures.
+* [x] Configure the shared outside transit VLAN between R1 and both ASAv outside interfaces.
+* [x] Configure an ASAv Active/Standby failover pair with role-based inside and outside addressing.
+* [x] Configure a dedicated failover and state link for HA communication and state synchronization.
+* [x] Configure VLAN 99 as the shared firewall transit network between the ASAv pair and D1/D2.
+* [x] Configure HSRP on VLANs 10 and 99 and align the VLAN 10 Spanning Tree root with the preferred HSRP active switch.
+* [x] Configure static routing, ICMP inspection, and dynamic PAT for the internal test network.
+* [x] Verify Layer 2, Layer 3, NAT, HA synchronization, and end-to-end connectivity.
+* [x] Validate manual switchover and automatic recovery from firewall-link, firewall-node, and distribution-switch failures.
 
 
 ---
@@ -36,7 +36,10 @@ D1 and D2 provide HSRP default gateways for VLANs 10 and 99. They are interconne
 
 A1 serves as the internal test endpoint through its VLAN 10 SVI. Its default gateway is the VLAN 10 HSRP virtual IP address. Traffic from A1 crosses the active distribution path, the active firewall, R1, and the simulated ISP before reaching the external test loopback.
 
-![Topology Diagram](topology/<diagram-file-name>)
+Topology artifacts are available in the `topology/` folder.
+ 
+- [Open topology diagram](topology/diagram.png)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 
@@ -315,9 +318,6 @@ service-policy global_policy global # Applies the inspection policy globally.
 failover lan unit primary # Identifies this physical ASAv as the primary unit.
 failover lan interface FAILOVER gigabitethernet0/1 # Assigns Gi0/1 as the dedicated failover communication interface.
 failover interface ip FAILOVER 10.255.255.1 255.255.255.252 standby 10.255.255.2 # Assigns primary-unit and secondary-unit failover-link addresses.
-
-interface gigabitethernet0/1 # Selects the dedicated failover interface.
-description DEDICATED_FAILOVER_STATE_LINK # Documents the link without using unit-specific peer information.
 no shutdown # Enables the failover interface.
 
 failover link FAILOVER gigabitethernet0/1 # Uses the failover interface for stateful connection synchronization.
@@ -340,9 +340,6 @@ configure terminal # Enters global configuration mode.
 failover lan unit secondary # Identifies this physical ASAv as the secondary unit.
 failover lan interface FAILOVER gigabitethernet0/1 # Assigns Gi0/1 as the dedicated failover communication interface.
 failover interface ip FAILOVER 10.255.255.1 255.255.255.252 standby 10.255.255.2 # Defines the same failover-link addresses configured on FW1.
-
-interface gigabitethernet0/1 # Selects the dedicated failover interface.
-description DEDICATED_FAILOVER_STATE_LINK # Documents the interface purpose using a pair-neutral description.
 no shutdown # Enables the failover interface.
 
 failover link FAILOVER gigabitethernet0/1 # Uses Gi0/1 for state synchronization as well as failover control.
@@ -529,59 +526,36 @@ write memory # Saves the running configuration.
 
 ## Verification
 
-See [`verification/verification_commands.md`](verification/verification_commands.md) for recorded command output and detailed expected results.
+See [`verification/verification-commands.md`](verification/verification-commands.md) for recorded command output and detailed expected results.
 
 ---
 
 **ISP**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured ISP hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
-
 # Interface verification
 show ip interface brief # Confirms Gi0/0 and Loopback0 are up with the expected addresses.
-show running-config interface gigabitethernet0/0 # Confirms the R1-facing interface configuration.
-show running-config interface loopback0 # Confirms the external test loopback configuration.
 
 # Routing verification
-show ip route connected # Confirms the directly connected R1 link and loopback route.
 show ip route static # Confirms the return route toward the firewall outside subnet.
-show ip route 203.0.113.0 # Confirms 203.0.113.0/29 resolves through R1.
 
 # Connectivity verification
-ping 198.51.100.2 # Confirms direct connectivity to R1 Gi0/1.
-ping 203.0.113.1 # Confirms routed connectivity to R1's shared outside interface.
-ping 203.0.113.2 # Confirms connectivity to the active firewall outside address.
-```      
-
+ping 203.0.113.2 # Confirms connectivity to the active firewall outside address through R1.
+```
 
 ---
 
 **R1**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured R1 hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
-
 # Interface verification
 show ip interface brief # Confirms Gi0/0 and Gi0/1 are up with the expected addresses.
-show running-config interface gigabitethernet0/0 # Confirms the OS1-facing outside-transit configuration.
-show running-config interface gigabitethernet0/1 # Confirms the ISP-facing point-to-point configuration.
 
 # Routing verification
-show ip route connected # Confirms the directly connected ISP and outside-transit networks.
 show ip route static # Confirms the default route toward the ISP.
-show ip route 192.0.2.100 # Confirms the external test destination resolves through the default route.
-show ip route 203.0.113.0 # Confirms the firewall outside subnet is directly connected.
 
 # Connectivity verification
-ping 198.51.100.1 # Confirms direct connectivity to the ISP router.
 ping 192.0.2.100 # Confirms routed connectivity to the simulated external destination.
-ping 203.0.113.2 # Confirms Layer 3 reachability to the active firewall outside address.
-show ip arp 203.0.113.2 # Confirms R1 has resolved the active firewall address to a MAC address.
 ```
 
 ---
@@ -589,22 +563,11 @@ show ip arp 203.0.113.2 # Confirms R1 has resolved the active firewall address t
 **OS1**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured OS1 hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
-
 # VLAN verification
 show vlan brief # Confirms VLAN 100 exists and Gi0/0 through Gi0/2 are assigned to it.
 
-# Access-port verification
-show interfaces gigabitethernet0/0 switchport # Confirms the R1-facing port is a static access port in VLAN 100.
-show interfaces gigabitethernet0/1 switchport # Confirms the FW1-facing port is a static access port in VLAN 100.
-show interfaces gigabitethernet0/2 switchport # Confirms the FW2-facing port is a static access port in VLAN 100.
-show interfaces status # Confirms all three outside-transit links are physically connected.
-
 # Layer 2 forwarding verification
-show mac address-table vlan 100 # Confirms OS1 learns MAC addresses from R1 and the firewall pair.
-show spanning-tree vlan 100 # Confirms the VLAN 100 ports are forwarding and no unexpected STP blocking exists.
+show spanning-tree vlan 100 # Confirms OS1 is the VLAN 100 root and all three transit ports are forwarding.
 ```
 
 ---
@@ -612,42 +575,22 @@ show spanning-tree vlan 100 # Confirms the VLAN 100 ports are forwarding and no 
 **FW1**
 
 ```bash
-# Basic device prep verification
-show running-config hostname # Confirms the shared FW-HA hostname.
-show running-config prompt # Confirms the prompt displays priority and active/standby state.
-
-# Data interface verification
-show interface ip brief # Confirms the outside and inside interfaces are enabled with the expected addresses.
-show nameif # Confirms Gi0/0 is named outside and Gi0/2 is named inside.
-show running-config interface gigabitethernet0/0 # Confirms the outside interface and active/standby addressing.
-show running-config interface gigabitethernet0/2 # Confirms the inside interface and active/standby addressing.
+# Interface verification
+show interface ip brief # Confirms the active-role outside, failover, and inside addresses are up.
 
 # Routing verification
 show route # Confirms the connected, default, and internal static routes.
-show route 0.0.0.0 # Confirms the default route points outside through 203.0.113.1.
-show route 10.10.10.0 # Confirms VLAN 10 is reachable inside through 10.255.0.1.
 
-# NAT verification
-show running-config object network INTERNAL_TEST # Confirms the 10.10.10.0/24 network object.
+# NAT and policy verification
 show nat detail # Confirms dynamic PAT from inside to the outside interface.
-show xlate # Displays active translations after test traffic is generated.
-show conn # Displays active firewall connections after test traffic is generated.
-
-# ICMP inspection verification
 show running-config policy-map # Confirms inspect icmp is present under global_policy.
 show running-config service-policy # Confirms global_policy is applied globally.
-show service-policy # Confirms the inspection policy is active and displays runtime counters.
 
-# Failover configuration and health verification
-show running-config failover # Confirms FW1's failover and state-link configuration.
-show failover # Confirms unit identity, active/standby state, peer health, interfaces, and state-link status.
-show failover state # Summarizes the current state of both failover units.
-show monitor-interface # Confirms the inside and outside interfaces are monitored.
-show interface gigabitethernet0/1 # Confirms the dedicated failover/state interface is operational.
+# Failover health verification
+show failover # Confirms failover roles, peer health, failover link status, and monitored data interfaces.
 
-# Local connectivity verification
+# Connectivity verification
 ping 203.0.113.1 # Confirms connectivity to R1 through the outside interface.
-ping 10.255.0.1 # Confirms connectivity to the VLAN 99 HSRP virtual IP.
 ping 10.10.10.10 # Confirms routed connectivity to A1 through the distribution layer.
 ```
 
@@ -656,31 +599,23 @@ ping 10.10.10.10 # Confirms routed connectivity to A1 through the distribution l
 **FW2**
 
 ```bash
-# Shared configuration synchronization verification
-show running-config hostname # Confirms FW2 received the shared FW-HA hostname from FW1.
-show running-config prompt # Confirms FW2 received the shared prompt configuration.
-show running-config failover # Confirms FW2 retains its secondary identity and matching failover-link configuration.
+# Interface verification
+show interface ip brief # Confirms the standby-role outside, failover, and inside addresses are up.
 
-# Failover role and peer-health verification
-show failover # Confirms FW2 is Secondary, Standby Ready, and communicating with FW1.
-show failover state # Confirms the current primary/secondary and active/standby states.
-show failover interface # Confirms the dedicated failover/state link is operational.
-show monitor-interface # Confirms the inside and outside data interfaces are monitored.
+# Routing verification
+show route # Confirms the synchronized connected, default, and internal static routes.
 
-# Failover/state interface verification
-show interface gigabitethernet0/1 # Confirms the dedicated failover/state interface is physically operational.
-
-# Synchronized data interface verification
-show interface ip brief # Confirms the synchronized outside and inside interface addressing and status.
-show nameif # Confirms Gi0/0 is outside and Gi0/2 is inside.
-show running-config interface gigabitethernet0/0 # Confirms the synchronized outside configuration.
-show running-config interface gigabitethernet0/2 # Confirms the synchronized inside configuration.
-
-# Synchronized routing and policy verification
-show route # Confirms FW2 received the connected and static routes from FW1.
-show nat detail # Confirms FW2 received the dynamic PAT rule.
+# NAT and policy verification
+show nat detail # Confirms the synchronized dynamic PAT rule.
 show running-config policy-map # Confirms the synchronized ICMP inspection configuration.
-show running-config service-policy # Confirms the global policy is applied.
+show running-config service-policy # Confirms the synchronized global policy is applied.
+
+# Failover health verification
+show failover # Confirms failover roles, peer health, failover link status, and monitored data interfaces.
+
+# Connectivity verification
+ping 203.0.113.1 # Confirms connectivity to R1 through the standby-role outside interface.
+ping 10.10.10.10 # Confirms routed connectivity to A1 through the standby-role inside path.
 ```
 
 ---
@@ -688,48 +623,19 @@ show running-config service-policy # Confirms the global policy is applied.
 **D1**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured D1 hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
-show running-config | include ^ip routing # Confirms Layer 3 routing is enabled.
-
-# VLAN verification
+# VLAN and trunk verification
 show vlan brief # Confirms VLANs 10 and 99 exist and Gi0/0 is assigned to VLAN 99.
-
-# Trunk verification
 show interfaces trunk # Confirms Gi0/1 carries VLANs 10 and 99 and Gi0/2 carries VLAN 10.
-show interfaces gigabitethernet0/1 switchport # Confirms the D2-facing interface is a static trunk.
-show interfaces gigabitethernet0/2 switchport # Confirms the A1-facing interface is a static trunk.
 
-# Firewall-facing access-port verification
-show interfaces gigabitethernet0/0 switchport # Confirms the FW1-facing interface is an access port in VLAN 99.
-show interfaces status # Confirms the physical links are connected.
-
-# SVI verification
+# SVI and HSRP verification
 show ip interface brief | include Vlan # Confirms the VLAN 10 and VLAN 99 SVIs are up with the expected addresses.
-show running-config interface vlan 10 # Confirms VLAN 10 addressing and HSRP configuration.
-show running-config interface vlan 99 # Confirms VLAN 99 addressing and HSRP configuration.
-
-# HSRP verification
-show standby brief # Confirms D1 is the expected HSRP Active router for VLANs 10 and 99.
-show standby vlan 10 # Displays detailed VLAN 10 HSRP state, timers, priority, and peer information.
-show standby vlan 99 # Displays detailed VLAN 99 HSRP state, timers, priority, and peer information.
+show standby brief # Confirms D1 is HSRP Active for VLANs 10 and 99.
 
 # Spanning Tree verification
-show spanning-tree vlan 10 # Confirms D2's root and designated VLAN 10 ports are forwarding.
+show spanning-tree vlan 10 # Confirms D1 is the VLAN 10 root and its participating ports are forwarding.
 
 # Routing verification
-show ip route connected # Confirms VLANs 10 and 99 appear as directly connected networks.
 show ip route static # Confirms the default route toward the active firewall address.
-show ip route 0.0.0.0 # Confirms the default route uses 10.255.0.4 as its next hop.
-
-# Connectivity verification
-ping 10.10.10.3 # Confirms VLAN 10 connectivity to D2.
-ping 10.10.10.10 # Confirms VLAN 10 connectivity to A1.
-ping 10.255.0.3 # Confirms VLAN 99 connectivity to D2.
-ping 10.255.0.4 # Confirms connectivity to the active firewall inside address.
-ping 203.0.113.1 source 10.10.10.2 # Confirms connectivity through the firewall using an address covered by PAT.
-ping 192.0.2.100 source 10.10.10.2 # Confirms end-to-end connectivity using a source address covered by PAT.
 ```
 
 ---
@@ -737,47 +643,19 @@ ping 192.0.2.100 source 10.10.10.2 # Confirms end-to-end connectivity using a so
 **D2**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured D2 hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
-show running-config | include ^ip routing # Confirms Layer 3 routing is enabled.
-
-# VLAN verification
+# VLAN and trunk verification
 show vlan brief # Confirms VLANs 10 and 99 exist and Gi0/0 is assigned to VLAN 99.
-
-# Trunk verification
 show interfaces trunk # Confirms Gi0/1 carries VLANs 10 and 99 and Gi0/2 carries VLAN 10.
-show interfaces gigabitethernet0/1 switchport # Confirms the D1-facing interface is a static trunk.
-show interfaces gigabitethernet0/2 switchport # Confirms the A1-facing interface is a static trunk.
 
-# Firewall-facing access-port verification
-show interfaces gigabitethernet0/0 switchport # Confirms the FW2-facing interface is an access port in VLAN 99.
-show interfaces status # Confirms the physical links are connected.
-
-# SVI verification
+# SVI and HSRP verification
 show ip interface brief | include Vlan # Confirms the VLAN 10 and VLAN 99 SVIs are up with the expected addresses.
-show running-config interface vlan 10 # Confirms VLAN 10 addressing and HSRP configuration.
-show running-config interface vlan 99 # Confirms VLAN 99 addressing and HSRP configuration.
-
-# HSRP verification
-show standby brief # Confirms D2 is the expected HSRP Standby router for VLANs 10 and 99.
-show standby vlan 10 # Displays detailed VLAN 10 HSRP state, timers, priority, and active-peer information.
-show standby vlan 99 # Displays detailed VLAN 99 HSRP state, timers, priority, and active-peer information.
+show standby brief # Confirms D2 is HSRP Standby for VLANs 10 and 99.
 
 # Spanning Tree verification
-show spanning-tree vlan 10 # Confirms VLAN 10 port roles and the expected blocked and forwarding paths.
+show spanning-tree vlan 10 # Confirms D2's root port toward D1 and designated port toward A1 are forwarding.
 
 # Routing verification
-show ip route connected # Confirms VLANs 10 and 99 appear as directly connected networks.
 show ip route static # Confirms the default route toward the active firewall address.
-show ip route 0.0.0.0 # Confirms the default route uses 10.255.0.4 as its next hop.
-
-# Connectivity verification
-ping 10.10.10.2 # Confirms VLAN 10 connectivity to D1.
-ping 10.10.10.10 # Confirms VLAN 10 connectivity to A1.
-ping 10.255.0.2 # Confirms VLAN 99 connectivity to D1.
-ping 10.255.0.4 # Confirms connectivity to the active firewall inside address.
-ping 192.0.2.100 source 10.10.10.3 # Confirms end-to-end connectivity using a source address covered by the PAT rule.
 ```
 
 ---
@@ -785,210 +663,211 @@ ping 192.0.2.100 source 10.10.10.3 # Confirms end-to-end connectivity using a so
 **A1**
 
 ```bash
-# Basic device prep verification
-show running-config | include ^hostname # Confirms the configured A1 hostname.
-show running-config | include ^no ip domain lookup # Confirms DNS lookup is disabled.
+# Trunk and Spanning Tree verification
+show interfaces trunk # Confirms both distribution uplinks carry VLAN 10.
+show spanning-tree vlan 10 # Confirms the D1-facing uplink is forwarding and the D2-facing uplink is alternate/blocking.
 
-# VLAN verification
-show vlan brief # Confirms VLAN 10 exists.
-
-# Trunk verification
-show interfaces trunk # Confirms Gi0/0 and Gi0/1 carry VLAN 10.
-show interfaces gigabitethernet0/0 switchport # Confirms the D1-facing interface is a static trunk allowing VLAN 10.
-show interfaces gigabitethernet0/1 switchport # Confirms the D2-facing interface is a static trunk allowing VLAN 10.
-show interfaces status # Confirms both distribution uplinks are physically connected.
-
-# Spanning Tree verification
-show spanning-tree vlan 10 # Confirms one redundant uplink is forwarding and the other is blocking or alternate as expected.
-
-# SVI verification
+# SVI and gateway verification
 show ip interface brief | include Vlan10 # Confirms the VLAN 10 SVI is up with address 10.10.10.10.
-show running-config interface vlan 10 # Confirms the VLAN 10 SVI configuration.
-
-# Default gateway verification
 show running-config | include ^ip default-gateway # Confirms the default gateway is the HSRP VIP 10.10.10.1.
 
-# Connectivity verification
-ping 10.10.10.1 # Confirms connectivity to the VLAN 10 HSRP virtual gateway.
-ping 10.10.10.2 # Confirms connectivity to D1's VLAN 10 SVI.
-ping 10.10.10.3 # Confirms connectivity to D2's VLAN 10 SVI.
-ping 10.255.0.4 # Confirms routed connectivity to the active firewall inside address.
-ping 203.0.113.1 # Confirms connectivity through the firewall to R1.
+# End-to-end verification
 ping 192.0.2.100 # Confirms end-to-end connectivity through HSRP, the active firewall, PAT, R1, and the ISP.
-traceroute 192.0.2.100 # Displays the Layer 3 path toward the simulated external destination.
 ```
-
----
 
 ## Failover Testing
 
-See [`verification/failover_testing.md`](verification/failover_testing.md) for recorded test output and detailed results.
+See `verification/failover-commands.md` for recorded test output and detailed results.
 
 Perform failover testing only after the normal verification section passes. Restore the topology to its expected operating state before beginning each test.
 
+### CML Long-Ping Control
+
+The CML console may not respond to the normal IOS escape sequence during a long-running ping.
+
+```bash
+# Run on A1 before failover testing
+terminal escape-character 33 # Changes the escape character to ! so the long-running ping can be stopped reliably.
+```
+
+Press `!` to stop the ping after each failure and recovery sequence is complete.
+
+```bash
+# Run on A1 after failover testing
+terminal escape-character 30 # Restores the default Cisco escape character.
+```
+
 ### Test 1: Manual Firewall Switchover
 
-**Purpose:** Confirm FW2 can assume the Active role, maintain traffic flow, and return to the original firewall roles.
+**Purpose:** Confirm FW2 can assume the Active role, maintain end-to-end forwarding, and return to the original firewall roles.
 
 ```bash
 # Run on A1
-ping 192.0.2.100 repeat 10000 # Monitors end-to-end connectivity during the firewall switchover.
+ping 192.0.2.100 repeat 100000 # Monitors end-to-end connectivity and records any transient packet loss during the role transitions.
 
 # Run on FW1 while FW1 is Active
 no failover active # Causes FW1 to relinquish the Active role to FW2.
-show failover # Confirms FW1 is Primary/Standby and FW2 is Secondary/Active.
+show failover # Confirms FW1 is Primary/Standby Ready and FW2 is Secondary/Active.
 
-# Run on FW1 while FW1 is Standby
-failover active # Forces FW1 to resume the Active role and restores the original firewall roles.
+# Run on FW1 while FW1 is Standby Ready
+failover active # Restores FW1 as the Active firewall.
 show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
 ```
 
 ### Test 2: FW1 Inside-Link Failure
 
-**Purpose:** Confirm failure of FW1’s monitored inside path automatically moves the Active role to FW2.
+**Purpose:** Confirm failure of FW1's monitored inside path automatically moves the Active role to FW2, maintains end-to-end forwarding, and allows FW1 to recover after the failed path is restored.
 
 ```bash
 # Run on A1
-ping 192.0.2.100 repeat 10000 # Monitors end-to-end connectivity during automatic failover.
+ping 192.0.2.100 repeat 100000 # Monitors end-to-end connectivity and records any transient packet loss during automatic failover and recovery.
 
 # Run on D1
 configure terminal # Enters global configuration mode.
 interface gigabitethernet0/0 # Selects the link connected to FW1 Gi0/2.
-shutdown # Simulates failure of FW1's inside connection.
+shutdown # Simulates failure of FW1's monitored inside path.
 end # Returns to privileged EXEC mode.
 
-# Run on either firewall
-show failover # Confirms FW2 became Active and identifies FW1's inside-interface failure.
-show failover state # Confirms the automatic role transition and recorded failure reason.
+# Wait for automatic firewall failover.
+
+# Run on FW2
+show failover # Confirms FW2 is Secondary/Active and FW1 is Primary/Failed because of the inside-path failure.
 
 # Run on D1
 configure terminal # Enters global configuration mode.
 interface gigabitethernet0/0 # Selects the disabled FW1-facing port.
-no shutdown # Restores FW1's inside connection.
+no shutdown # Restores FW1's inside path.
 end # Returns to privileged EXEC mode.
 
-# Run on FW1 after it returns to Standby Ready
-show failover # Confirms FW1 recovered and is ready to resume service.
-failover active # Restores FW1 as the Active firewall.
+# Wait for FW1 to automatically recover to Standby Ready.
+
+# Run on FW1
+show failover # Confirms FW1 recovered as Primary/Standby Ready while FW2 remains Secondary/Active.
+failover active # Manually restores FW1 as the preferred Active firewall.
 show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
 ```
 
 ### Test 3: FW1 Outside-Link Failure
 
-**Purpose:** Confirm failure of FW1’s monitored outside path automatically moves the Active role to FW2.
+**Purpose:** Confirm failure of FW1's monitored outside path automatically moves the Active role to FW2, maintains end-to-end forwarding, and allows FW1 to recover after the failed path is restored.
 
 ```bash
 # Run on A1
-ping 192.0.2.100 repeat 10000 # Monitors end-to-end connectivity throughout failure and recovery.
+ping 192.0.2.100 repeat 100000 # Monitors end-to-end connectivity and records any transient packet loss during automatic failover and recovery.
 
 # Run on OS1
 configure terminal # Enters global configuration mode.
 interface gigabitethernet0/1 # Selects the access port connected to FW1 Gi0/0.
-shutdown # Simulates failure of FW1's outside connection.
+shutdown # Simulates failure of FW1's monitored outside path.
 end # Returns to privileged EXEC mode.
 
-# Run on either firewall
-show failover # Confirms FW2 became Active and reports the failed FW1 outside interface.
-show failover state # Confirms the automatic role transition.
+# Wait for automatic firewall failover.
+
+# Run on FW2
+show failover # Confirms FW2 is Secondary/Active and FW1 is Primary/Failed because of the outside-path failure.
 
 # Run on OS1
 configure terminal # Enters global configuration mode.
 interface gigabitethernet0/1 # Selects the disabled FW1-facing port.
-no shutdown # Restores FW1's outside connection.
+no shutdown # Restores FW1's outside path.
 end # Returns to privileged EXEC mode.
 
-# Run on FW1 after it reaches Standby Ready
-show failover # Confirms FW1 recovered and is healthy.
-failover active # Restores FW1 as the Active firewall.
+# Wait for FW1 to automatically recover to Standby Ready.
+
+# Run on FW1
+show failover # Confirms FW1 recovered as Primary/Standby Ready while FW2 remains Secondary/Active.
+failover active # Manually restores FW1 as the preferred Active firewall.
 show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
 ```
 
 ### Test 4: FW1 Node Failure
 
-**Purpose:** Confirm complete loss of the Active firewall automatically moves the Active role to FW2.
+**Purpose:** Confirm complete loss of the Active firewall automatically moves the Active role to FW2, maintains end-to-end forwarding, and allows FW1 to rejoin the failover pair after recovery.
 
 ```bash
 # Run on A1
-ping 192.0.2.100 repeat 10000 # Monitors end-to-end connectivity throughout failure and recovery.
+ping 192.0.2.100 repeat 100000 # Monitors end-to-end connectivity and records any transient packet loss during firewall failure and recovery.
 
 # In CML
 Stop the FW1 node # Simulates complete power or hardware failure of the Active firewall.
 
+# Wait for FW2 to detect loss of its failover peer.
+
 # Run on FW2
-show failover # Confirms FW2 became Secondary/Active and reports the Primary unit as failed.
-show failover state # Confirms FW2 completed the automatic transition to Active.
+show failover # Confirms FW2 is Secondary/Active and the Primary unit is reported failed.
 
 # In CML
 Start the FW1 node # Restores the Primary firewall.
 
-# Run on FW1 after it finishes booting
-show failover # Confirms FW1 rejoined the pair as Primary/Standby Ready.
-failover active # Restores FW1 as the Active firewall.
+# Wait for FW1 to boot, rejoin the failover pair, and reach Standby Ready.
+
+# Run on FW1
+show failover # Confirms FW1 rejoined as Primary/Standby Ready while FW2 remains Secondary/Active.
+failover active # Manually restores FW1 as the preferred Active firewall.
 show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
 ```
 
 ### Test 5: D1 Node Failure
 
-**Purpose:** Confirm complete loss of D1 moves traffic onto the surviving FW2–D2 path.
+**Purpose:** Confirm complete loss of D1 moves traffic onto the surviving FW2-D2 path, causes the expected firewall and HSRP convergence, and preserves end-to-end forwarding.
 
 ```bash
 # Run on A1
-ping 192.0.2.100 repeat 10000 # Monitors end-to-end connectivity throughout failure and recovery.
+ping 192.0.2.100 repeat 100000 # Monitors end-to-end connectivity and records any transient packet loss during distribution-layer failure and recovery.
 
 # In CML
 Stop the D1 node # Simulates complete failure of the preferred distribution switch.
 
+# Wait for firewall and HSRP convergence.
+
 # Run on FW2
-show failover # Confirms FW2 became Active after FW1 lost its inside connection.
-show failover state # Confirms the firewall pair completed the automatic role transition.
+show failover # Confirms FW2 became Secondary/Active after FW1 lost its inside path.
 
 # Run on D2
 show standby brief # Confirms D2 became HSRP Active for VLANs 10 and 99.
 
-# Run on A1
-show spanning-tree vlan 10 # Confirms the D2-facing uplink is forwarding after convergence.
-
 # In CML
 Start the D1 node # Restores the preferred distribution switch.
 
-# Run on D1 after it finishes booting
-show standby brief # Confirms D1 reclaimed the HSRP Active role through preemption.
-show spanning-tree vlan 10 # Confirms D1 resumed its expected Spanning Tree role.
+# Wait for D1 to boot and HSRP to reconverge.
 
-# Run on FW1 after its inside link recovers
-show failover # Confirms FW1 rejoined the pair as Primary/Standby Ready.
-failover active # Restores FW1 as the Active firewall.
-show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
+# Run on D1
+show standby brief # Confirms D1 reclaimed the HSRP Active role for VLANs 10 and 99 through preemption.
 
-# Run on A1
-show spanning-tree vlan 10 # Confirms the original forwarding and alternate uplink roles were restored.
+# Wait for FW1's inside path to recover and FW1 to reach Standby Ready.
+
+# Run on FW1
+show failover # Confirms FW1 recovered as Primary/Standby Ready while FW2 remains Secondary/Active.
+failover active # Manually restores FW1 as the preferred Active firewall.
 ```
 
 ### Final Restoration and Baseline Confirmation
 
-**Purpose:** Confirm the original operating state has been restored after all failover tests.
+**Purpose:** Confirm the preferred operating state has been restored after all failover tests.
 
 ```bash
 # Run on FW1
-show failover # Confirms FW1 is Primary/Active and FW2 is Secondary/Standby Ready.
+show failover # Confirms FW1 is Primary/Active, FW2 is Secondary/Standby Ready, and all monitored interfaces are healthy.
 
 # Run on D1
 show standby brief # Confirms D1 is HSRP Active and D2 is HSRP Standby for VLANs 10 and 99.
 
 # Run on A1
-show spanning-tree vlan 10 # Confirms the original VLAN 10 forwarding and alternate uplink roles are restored.
+show spanning-tree vlan 10 # Confirms the D1-facing uplink is forwarding and the D2-facing uplink is alternate/blocking.
 ping 192.0.2.100 # Confirms end-to-end connectivity after all failure scenarios are complete.
 ```
+
+
 
 ## Artifacts
 
 | Type                 | Location                                                                         |
 |----------------------|----------------------------------------------------------------------------------|
 | Configurations       | [`configs/`](configs/)                                                           |
-| Diagram              | [`topology/<diagram-file-name>`](topology/<diagram-file-name>)                   |
+| Diagram              | [`topology/<diagram.png>`](topology/diagram.png>)                   |
 | Topology File        | [`topology/topology.yaml`](topology/topology.yaml)                               |
-| Verification Results | [`verification/verification_commands.md`](verification/verification_commands.md) |
-| Failover Results     | [`verification/failover_testing.md`](verification/failover_testing.md)           |
+| Verification Results | [`verification/verification-commands.md`](verification/verification-commands.md) |
+| Failover Results     | [`verification/failover-commands.md`](verification/failover-commands.md)           |
 
 ---
 
