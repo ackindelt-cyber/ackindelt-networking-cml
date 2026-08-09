@@ -12,6 +12,10 @@ End-to-End Verification: Not Tested
 
 ---
 
+**CML VLAN Export Note:** Cisco CML topology exports and exported device configuration files may not preserve VLAN database state. VLAN IDs, VLAN names, and intended VLAN design are documented in this README and should not be inferred from "topology.yaml" or exported configs alone.
+
+---
+
 ## Objectives
 
 * [x] Configure the shared outside transit VLAN between R1 and both ASAv outside interfaces.
@@ -318,13 +322,15 @@ service-policy global_policy global # Applies the inspection policy globally.
 failover lan unit primary # Identifies this physical ASAv as the primary unit.
 failover lan interface FAILOVER gigabitethernet0/1 # Assigns Gi0/1 as the dedicated failover communication interface.
 failover interface ip FAILOVER 10.255.255.1 255.255.255.252 standby 10.255.255.2 # Assigns primary-unit and secondary-unit failover-link addresses.
-no shutdown # Enables the failover interface.
+
+interface gigabitethernet0/1 # Target failover interface
+no shutdown # Enables the interface.
 
 failover link FAILOVER gigabitethernet0/1 # Uses the failover interface for stateful connection synchronization.
 failover # Enables Active/Standby failover.
 
 end # Returns to privileged EXEC mode.
-write memory # Saves the running configuration after failover sychronization
+write memory # Saves the running configuration after failover synchronization.
 ```
 
 ---
@@ -864,10 +870,10 @@ ping 192.0.2.100 # Confirms end-to-end connectivity after all failure scenarios 
 | Type                 | Location                                                                         |
 |----------------------|----------------------------------------------------------------------------------|
 | Configurations       | [`configs/`](configs/)                                                           |
-| Diagram              | [`topology/<diagram.png>`](topology/diagram.png>)                   |
+| Diagram              | [`topology/<diagram.png>`](topology/diagram.png)                                 |
 | Topology File        | [`topology/topology.yaml`](topology/topology.yaml)                               |
 | Verification Results | [`verification/verification-commands.md`](verification/verification-commands.md) |
-| Failover Results     | [`verification/failover-commands.md`](verification/failover-commands.md)           |
+| Failover Results     | [`verification/failover-commands.md`](verification/failover-commands.md)         |
 
 ---
 
@@ -876,5 +882,5 @@ ping 192.0.2.100 # Confirms end-to-end connectivity after all failure scenarios 
 | Field        | Value         |
 |--------------|---------------|
 | Lab Version  | 1.0           |
-| Last Updated | 2026-08-02    |
+| Last Updated | 2026-08-08    |
 | Author       | Aaron Kindelt |

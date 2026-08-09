@@ -54,7 +54,7 @@ Another important distinction was between the ASA's Primary/Secondary identity a
 
 Failure detection also required patience. Monitored-interface failover does not occur immediately, and checking `show failover` too quickly could capture temporary `Waiting` or `No Traffic` states before the failover process had completed. Testing therefore had to account for convergence time rather than assuming every state transition would be instantaneous.
 
-The D1 node-failure test was particularly useful because it exercised several redundancy mechanisms at the same time. Losing D1 caused D2 to assume the HSRP Active roles, forced firewall traffic onto the FW2-D2 path, and required the Layer 2 topology to use the surviving access path while end-to-end connectivity recovered.
+The D1 node-failure test was particularly useful because it exercised several redundancy mechanisms at the same time. Losing D1 caused D2 to assume the HSRP Active roles, forced firewall traffic onto the FW2-D2 path, and demonstrated that the surviving access path remained usable while end-to-end connectivity recovered.
 
 The lab also reinforced the importance of testing failure recovery rather than only testing failure itself. A redundant design is incomplete if a failed component cannot safely rejoin the topology and return to its intended standby or preferred role.
 
