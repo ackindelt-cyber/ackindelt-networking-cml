@@ -346,10 +346,14 @@ configure terminal # Enters global configuration mode.
 failover lan unit secondary # Identifies this physical ASAv as the secondary unit.
 failover lan interface FAILOVER gigabitethernet0/1 # Assigns Gi0/1 as the dedicated failover communication interface.
 failover interface ip FAILOVER 10.255.255.1 255.255.255.252 standby 10.255.255.2 # Defines the same failover-link addresses configured on FW1.
-no shutdown # Enables the failover interface.
+
+interface gigabitethernet0/1 # Target failover interface
+no shutdown # Enables the interface.
 
 failover link FAILOVER gigabitethernet0/1 # Uses Gi0/1 for state synchronization as well as failover control.
 failover # Enables failover and begins communication and configuration synchronization with FW1.
+
+
 
 end # Returns to privileged EXEC mode. Run write memory on FW1 after failover synchronization
 ```
