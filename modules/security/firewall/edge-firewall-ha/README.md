@@ -6,9 +6,9 @@ This lab demonstrates the configuration and validation of a Cisco ASAv Active/St
 
 The design combines ASAv high availability, HSRP, Spanning Tree, static routing, ICMP inspection, and dynamic PAT to provide resilient connectivity between an internal test VLAN and a simulated external destination. Validation includes normal operation, manual firewall switchover, monitored-interface failures, firewall node failure, distribution-switch failure, and restoration of the preferred operating state.
 
-Lab Status: Planned
+Lab Status: Complete
 
-End-to-End Verification: Not Tested
+End-to-End Verification: Passed
 
 ---
 
@@ -412,7 +412,9 @@ ip address 10.255.0.2 255.255.255.248 # Assigns D1's physical Layer 3 address in
 standby 99 ip 10.255.0.1 # Configures the shared HSRP next hop used by the firewall pair.
 standby 99 priority 110 # Gives D1 a higher priority than D2.
 standby 99 preempt # Allows D1 to reclaim the active HSRP role after recovery.
-no shutdown # Enables the SVI.
+
+interface gigabitethernet0/1 # Target failover interface
+no shutdown # Enables the interface.
 
 # Start default route block
 ip route 0.0.0.0 0.0.0.0 10.255.0.4 # Sends destinations not found in the routing table to the active firewall address.
