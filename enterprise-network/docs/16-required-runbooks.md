@@ -13,7 +13,7 @@
 
 This document tracks the reusable runbooks required to build the Talos Solutions Enterprise Campus v1 lab.
 
-The purpose of this document is to identify which Exists module runbooks can be reused, which runbooks need to be split or replaced, which runbooks are in progress, and which runbooks still need to be created before the enterprise lab can be built cleanly.
+The purpose of this document is to identify which existing module runbooks can be reused, which runbooks need to be split or replaced, which runbooks are in progress, and which runbooks still need to be created before the enterprise lab can be built cleanly.
 
 ---
 
@@ -22,7 +22,7 @@ The purpose of this document is to identify which Exists module runbooks can be 
 ### In Scope
 
 - Required v1 runbooks
-- Exists reusable runbooks
+- Existing reusable runbooks
 - Runbooks that need to be split or replaced
 - Runbooks currently in progress
 - Runbooks still needed
