@@ -13,7 +13,7 @@
 
 This document tracks the reusable runbooks required to build the Talos Solutions Enterprise Campus v1 lab.
 
-The purpose of this document is to identify which existing module runbooks can be reused, which runbooks need to be split or replaced, which runbooks are in progress, and which runbooks still need to be created before the enterprise lab can be built cleanly.
+The purpose of this document is to identify which available module runbooks can be reused, which runbooks need to be split or replaced, which runbooks are in progress, and which runbooks still need to be created before the enterprise lab can be built cleanly.
 
 ---
 
@@ -22,11 +22,10 @@ The purpose of this document is to identify which existing module runbooks can b
 ### In Scope
 
 - Required v1 runbooks
-- Existing reusable runbooks
+- Available reusable runbooks
 - Runbooks that need to be split or replaced
 - Runbooks currently in progress
 - Runbooks still needed
-- Suggested module placement
 - Purpose of each runbook
 - Enterprise lab dependency notes
 
@@ -73,7 +72,7 @@ The required v1 runbook set covers:
 
 | Status | Meaning |
 |---|---|
-| Exists | Runbook already exists and can be reused for the enterprise lab |
+| Available | Runbook already exists and can be reused for the enterprise lab |
 | In progress | Runbook is actively being built or refined |
 | Needed | Runbook still needs to be created before the enterprise build is complete |
 | Retire after replacement | Existing runbook should be retired after cleaner replacement runbooks are created |
@@ -89,9 +88,9 @@ Folder placement is intentionally not finalized in this document. The priority i
 
 | Runbook | Status | Enterprise Use | Notes |
 |---|---|---|---|
-| `rapid-pvst-root-bridge-placement.md` | Exists | STP root placement | Reused for CORE1/CORE2 preferred root placement |
-| `hsrp.md` | Exists | Gateway redundancy | Reused for CORE1/CORE2 HSRP gateway design |
-| `basic-dhcp-server.md` | Exists | DHCP server | Reused for INFRA1 DHCP service |
+| `rapid-pvst-root-bridge-placement.md` | Available | STP root placement | Reused for CORE1/CORE2 preferred root placement |
+| `hsrp.md` | Available | Gateway redundancy | Reused for CORE1/CORE2 HSRP gateway design |
+| `basic-dhcp-server.md` | Available | DHCP server | Reused for INFRA1 DHCP service |
 | `vlan-creation-and-access-ports.md` | Needed | VLANs and access ports | Replaces part of the old combined VLAN/trunk/SVI runbook |
 | `802.1q-trunking.md` | Needed | Trunking | Replaces part of the old combined VLAN/trunk/SVI runbook |
 | `svi-and-inter-vlan-routing.md` | Needed | SVIs and inter-VLAN routing | Replaces part of the old combined VLAN/trunk/SVI runbook |
@@ -112,7 +111,7 @@ Folder placement is intentionally not finalized in this document. The priority i
 
 ## Runbook Replacement / Retirement
 
-The following Exists runbook should be retired after the replacement runbooks are created.
+The following older combined runbook should be retired after the replacement runbooks are created.
 
 | Current Runbook | Status | Replacement Plan |
 |---|---|---|
@@ -136,7 +135,7 @@ Count:
 
 | Status | Count |
 |---|---:|
-| Exists | 3 |
+| Available | 3 |
 | In progress | 2 |
 | Needed | 13 |
 | Total active v1 runbooks | 18 |
