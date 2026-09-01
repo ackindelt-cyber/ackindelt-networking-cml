@@ -1,4 +1,4 @@
-# Lab Guide — Lab Name
+# Lab Guide — BGP Fundamentals
 
 ## Overview
 *Briefly describe what the lab demonstrates and why it’s relevant.*
