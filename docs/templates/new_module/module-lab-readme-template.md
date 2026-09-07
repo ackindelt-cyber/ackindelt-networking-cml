@@ -1,103 +1,163 @@
-# Lab Guide — BGP Fundamentals
+# Lab Guide — <Lab Name>
 
 ## Overview
-*Briefly describe what the lab demonstrates and why it’s relevant.*
-Example: This lab demonstrates how to configure and verify OSPFv2 adjacency and route exchange between two routers.
 
-Lab Status:
-* `Validated` — topology, configurations, and verification are complete
-* `In Progress` — lab exists but documentation or validation is still being refined
-* `Planned` — lab has not been built or is not ready for review
-* `Archived` — retained for reference but no longer part of the active portfolio path
-Difficulty: Beginner / Intermediate / Advanced
-End-to-End Verification: Successful / Unsuccessful
+Briefly describe what this lab demonstrates.
+
+Explain the technology or behavior being validated and why it matters in a network.
+
+Lab Status: <Validated | In Progress | Planned | Archived>
+
+End-to-End Verification: <Successful | Partial | Not Tested>
 
 ---
 
 ## Objectives
-*List the key goals or outcomes of the lab. Keep it to 3–5 clear objectives.*
-- [ ] Configure interface IP addressing
-- [ ] Establish OSPF adjacency
-- [ ] Verify learned routes
+
+* [ ] Configure <technology or feature>.
+* [ ] Verify <expected behavior>.
+* [ ] Validate <supporting behavior, failover behavior, connectivity, or control-plane behavior>.
 
 ---
 
 ## Topology
-*Provide a quick visual reference and a table summarizing interfaces and addressing.*
 
-![Topology Diagram](/config_labs)
+Briefly describe the topology used in this lab.
+
+![Topology Diagram](topology/<diagram-file-name>)
 
 ---
 
-## Addressing Tables
+## Link Tables
 
-**Device Table**
-| Device  | Interface  | IP Address / Prefix | Connected To  | Description                         |
-|---------|------------|---------------------|---------------|-------------------------------------|
-| R1      | G0/0       | 10.0.0.1 /30        | R2 G0/0       | Point-to-point link between routers |
-| R2      | G0/0       | 10.0.0.2 /30        | R1 G0/0       | Point-to-point link between routers |
-| R2      | G0/1       | 192.168.10.1 /24    | CLI1 eth0     | LAN segment                         |
-| CLI1    | eth0       | 192.168.10.100 /24  | R2 G0/1       | Test client on LAN                  |
+### Physical Links
 
-**Other Table**
+| Local Device | Local Interface | Peer Device | Peer Interface | Description |
+| ------------ | --------------- | ----------- | -------------- | ----------- |
+| <Device>     | <Interface>     | <Device>    | <Interface>    | <Purpose>   |
+
+### Logical Links
+
+| Logical Interface / Relationship                  | Devices   | Member Interfaces / Networks | Purpose   |
+| ------------------------------------------------- | --------- | ---------------------------- | --------- |
+| <Port-Channel / VLAN / Route / Peer Relationship> | <Devices> | <Interfaces or Networks>     | <Purpose> |
 
 ---
 
 ## Configuration Steps
-*Note: CLI input in this document is written using bash formatting. For unannotated versions of the configs for this lab please see [/configs](/config_labs)
 
-**R1**
+> **Note:** The CLI examples below are annotated for readability. Clean device configurations are available in [`configs/`](configs/).
+
+> **Design note:** Add any important design, protocol, or lab-specific warning here. Keep this specific to the lab.
+
+**<Device 1>**
+
 ```bash
-#Example configuration block
- conf t #Places router in config mode
- interface g0/0 #Sets target interface
- ip address 10.0.0.1 255.255.255.252 #Assigns IP to target interface
- no shut #Sets target interface to active
- router ospf 1 #Creates new OSPF process on router with ID of 1
- network 10.0.0.0 0.0.0.3 area 0 #Subnet that will propagate to neighbors using wildcard mask
- ```
+# <Device 1> Configuration Block
+enable # Enters privileged EXEC mode.
+configure terminal # Enters global configuration mode.
+hostname <Device 1> # Sets hostname.
+no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+<configuration commands here>
+
+end # Returns to privileged EXEC mode.
+write memory # Saves the running configuration.
+```
+
+**<Device 2>**
+
+```bash
+# <Device 2> Configuration Block
+enable # Enters privileged EXEC mode.
+configure terminal # Enters global configuration mode.
+hostname <Device 2> # Sets hostname.
+no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+<configuration commands here>
+
+end # Returns to privileged EXEC mode.
+write memory # Saves the running configuration.
+```
+
+**<Device 3>**
+
+```bash
+# <Device 3> Configuration Block
+enable # Enters privileged EXEC mode.
+configure terminal # Enters global configuration mode.
+hostname <Device 3> # Sets hostname.
+no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+<configuration commands here>
+
+end # Returns to privileged EXEC mode.
+write memory # Saves the running configuration.
+```
 
 ---
 
- ## Verification
- *Commands and results that confirm the lab works as intended.*
+## Verification
 
- See [verification_commands](/config_labs) for command outputs.
+See [`verification/verification_commands.md`](verification/verification_commands.md) for recorded command output.
 
-**R1**
- ```bash
- #Example verification block
- show ip ospf neighbor #Checks OSPF neighbor relationships
- show ip route ospf #Verifies learned routes
+**<Device 1>**
+
+```bash
+# <Device 1> Verification Block
+show <command> # Confirm <expected behavior>.
+show <command> # Confirm <expected behavior>.
 ```
 
-**Packet Capture(s)**
+**<Device 2>**
 
-- Capture confirming end to end connectivity from [](/config_labs)
+```bash
+# <Device 2> Verification Block
+show <command> # Confirm <expected behavior>.
+show <command> # Confirm <expected behavior>.
+```
 
+**<Device 3>**
+
+```bash
+# <Device 3> Verification Block
+show <command> # Confirm <expected behavior>.
+show <command> # Confirm <expected behavior>.
+```
 
 ---
 
 ## Troubleshooting
-*Note: These troubleshooting steps are generalized to this lab and may not be valid for all <> troubleshooting scenarios. Once an issue is identified and resolved please re-run verification steps to confirm full functionality.
+
+> **Note:** These are quick-reference checks for this lab. They are not intended to be an exhaustive troubleshooting guide. After any change, re-run the verification steps to confirm the expected behavior.
+
+```bash
+# <Issue or symptom>.
+show <command> # Confirm <specific state or condition>.
+show <command> # Confirm <specific state or condition>.
+
+# <Issue or symptom>.
+show <command> # Confirm <specific state or condition>.
+show <command> # Confirm <specific state or condition>.
+```
 
 ---
 
 ## Artifacts
-| Type              | Location                                  |
-|-------------------|-------------------------------------------|
-| Configurations    | [configs/](/config_labs)                  |
-| Diagram           | [diagram.png](/config_labs)               |
-| Topology File     | [topology.yaml](/config_labs)             |
-| Packet Capture(s) | [captures/](/config_labs)                 |
-| Verification      | [verification_commands.txt](/config_labs) |
+
+| Type           | Location                                                                         |
+| -------------- | -------------------------------------------------------------------------------- |
+| Configurations | [`configs/`](configs/)                                                           |
+| Diagram        | [`topology/<diagram-file-name>`](topology/<diagram-file-name>)                   |
+| Topology File  | [`topology/topology.yaml`](topology/topology.yaml)                               |
+| Verification   | [`verification/verification_commands.md`](verification/verification_commands.md) |
 
 ---
 
-**Template Version Info**
- 
-| Field          | Value         |
-|----------------|---------------|
-| Lab Version    | 1.0           |
-| Last Updated   | 2025-11-03    |
-| Author         | Aaron Kindelt |
+## Document Metadata
+
+| Field        | Value         |
+| ------------ | ------------- |
+| Lab Version  | 1.0           |
+| Last Updated | <YYYY-MM-DD>  |
+| Author       | Aaron Kindelt |
