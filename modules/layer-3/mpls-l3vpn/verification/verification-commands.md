@@ -188,7 +188,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 3/3/5 ms
 **Expected Results**
 
 * [x] `Vlan10` is `up/up` with IP address `10.10.10.1`.
-* [x] The routed interface toward CE1 is `up/up` with IP address `10.10.255.1`.
+* [x] The routed interface toward TSE1 is `up/up` with IP address `10.10.255.1`.
 
 ```text
 TSD1#show ip interface brief
@@ -205,7 +205,7 @@ Vlan10                 10.10.10.1      YES manual up                    up
 **Expected Results**
 
 * [x] A default route for `0.0.0.0/0` is installed.
-* [x] The next hop is CE1 at `10.10.255.2`.
+* [x] The next hop is TSE1 at `10.10.255.2`.
 
 ```text
 TSD1#show ip route 0.0.0.0
@@ -222,7 +222,7 @@ Routing entry for 0.0.0.0/0, supernet
 **Expected Results**
 
 * [x] ICMP echo requests to `10.10.255.2` succeed.
-* [x] TSD1 has Layer 3 reachability to CE1.
+* [x] TSD1 has Layer 3 reachability to TSE1.
 
 ```text
 TSD1#ping 10.10.255.2
@@ -408,7 +408,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 2/4/9 ms
 **Expected Results**
 
 * [x] `Vlan20` is `up/up` with IP address `10.20.20.1`.
-* [x] The routed interface toward CE2 is `up/up` with IP address `10.20.255.1`.
+* [x] The routed interface toward TSE2 is `up/up` with IP address `10.20.255.1`.
 
 ```text
 TSD2#show ip interface brief
@@ -424,7 +424,7 @@ Vlan20                 10.20.20.1      YES manual up                    up
 **Expected Results**
 
 * [x] A default route for `0.0.0.0/0` is installed.
-* [x] The next hop is CE2 at `10.20.255.2`.
+* [x] The next hop is TSE2 at `10.20.255.2`.
 
 ```text
 TSD2#show ip route 0.0.0.0
@@ -441,7 +441,7 @@ Routing entry for 0.0.0.0/0, supernet
 **Expected Results**
 
 * [x] ICMP echo requests to `10.20.255.2` succeed.
-* [x] TSD2 has Layer 3 reachability to CE2.
+* [x] TSD2 has Layer 3 reachability to TSE2.
 
 ```text
 TSD2#ping 10.20.255.2
@@ -456,7 +456,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 2/3/5 ms
 
 ## Customer Edge Verification
 
-### CE1 Verification
+### TSE1 Verification
 
 ### `show ip interface brief`
 
@@ -466,7 +466,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 2/3/5 ms
 * [x] The interface toward PE1 is `up/up` with IP address `172.16.1.1`.
 
 ```text
-CE1#show ip interface brief
+TSE1#show ip interface brief
 
 Interface                  IP-Address      OK? Method Status                Protocol
 GigabitEthernet0/0         10.10.255.2     YES manual up                    up      
@@ -482,7 +482,7 @@ GigabitEthernet0/1         172.16.1.1      YES manual up                    up
 * [x] The next hop is TSD1 at `10.10.255.1`.
 
 ```text
-CE1#show ip route 10.10.10.0
+TSE1#show ip route 10.10.10.0
 
 Routing entry for 10.10.10.0/24
   Known via "static", distance 1, metric 0
@@ -499,7 +499,7 @@ Routing entry for 10.10.10.0/24
 * [x] The next hop is PE1 at `172.16.1.2`.
 
 ```text
-CE1#show ip route 0.0.0.0
+TSE1#show ip route 0.0.0.0
 
 Routing entry for 0.0.0.0/0, supernet
   Known via "static", distance 1, metric 0, candidate default path
@@ -513,10 +513,10 @@ Routing entry for 0.0.0.0/0, supernet
 **Expected Results**
 
 * [x] ICMP echo requests to `10.10.255.1` succeed.
-* [x] CE1 has Layer 3 reachability to TSD1.
+* [x] TSE1 has Layer 3 reachability to TSD1.
 
 ```text
-CE1#ping 10.10.255.1
+TSE1#ping 10.10.255.1
 
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.10.255.1, timeout is 2 seconds:
@@ -529,10 +529,10 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 3/3/4 ms
 **Expected Results**
 
 * [x] ICMP echo requests to `172.16.1.2` succeed.
-* [x] The CE1-to-PE1 provider handoff is operational.
+* [x] The TSE1-to-PE1 provider handoff is operational.
 
 ```text
-CE1#ping 172.16.1.2
+TSE1#ping 172.16.1.2
 
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 172.16.1.2, timeout is 2 seconds:
@@ -540,7 +540,7 @@ Sending 5, 100-byte ICMP Echos to 172.16.1.2, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 2/2/3 ms
 ```
 
-### CE2 Verification
+### TSE2 Verification
 
 ### `show ip interface brief`
 
@@ -550,7 +550,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 2/2/3 ms
 * [x] The interface toward PE2 is `up/up` with IP address `172.16.2.2`.
 
 ```text
-CE2#show ip interface brief
+TSE2#show ip interface brief
 
 Interface                  IP-Address      OK? Method Status                Protocol
 GigabitEthernet0/0         10.20.255.2     YES manual up                    up      
@@ -565,7 +565,7 @@ GigabitEthernet0/1         172.16.2.2      YES manual up                    up
 * [x] The next hop is TSD2 at `10.20.255.1`.
 
 ```text
-CE2#show ip route 10.20.20.0
+TSE2#show ip route 10.20.20.0
 
 Routing entry for 10.20.20.0/24
   Known via "static", distance 1, metric 0
@@ -582,7 +582,7 @@ Routing entry for 10.20.20.0/24
 * [x] The next hop is PE2 at `172.16.2.1`.
 
 ```text
-CE2#show ip route 0.0.0.0
+TSE2#show ip route 0.0.0.0
 
 Routing entry for 0.0.0.0/0, supernet
   Known via "static", distance 1, metric 0, candidate default path
@@ -596,10 +596,10 @@ Routing entry for 0.0.0.0/0, supernet
 **Expected Results**
 
 * [x] ICMP echo requests to `10.20.255.1` succeed.
-* [x] CE2 has Layer 3 reachability to TSD2.
+* [x] TSE2 has Layer 3 reachability to TSD2.
 
 ```text
-CE2#ping 10.20.255.1
+TSE2#ping 10.20.255.1
 
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.20.255.1, timeout is 2 seconds:
@@ -612,10 +612,10 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 3/4/6 ms
 **Expected Results**
 
 * [x] ICMP echo requests to `172.16.2.1` succeed.
-* [x] The CE2-to-PE2 provider handoff is operational.
+* [x] The TSE2-to-PE2 provider handoff is operational.
 
 ```text
-CE2#ping 172.16.2.1
+TSE2#ping 172.16.2.1
 
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 172.16.2.1, timeout is 2 seconds:
