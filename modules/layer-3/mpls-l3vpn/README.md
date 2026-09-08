@@ -8,22 +8,21 @@ The provider core uses IS-IS for internal routing, LDP for MPLS label distributi
 
 The lab demonstrates how customer traffic can traverse a provider-managed MPLS L3VPN while the internal provider router remains unaware of customer LAN routes. This models a common service provider WAN architecture and provides hands-on practice with the control-plane and forwarding relationships between IS-IS, LDP, MPLS, VRFs, and MP-BGP.
 
-Lab Status: In Progress
-
-End-to-End Verification: Not Tested
+Lab Status: Complete
+End-to-End Verification: Passed
 
 ---
 
 ## Objectives
-* [ ] Configure IS-IS as the provider core routing protocol.
-* [ ] Configure MPLS and LDP across the provider core.
-* [ ] Configure customer VRFs on the provider edge routers.
-* [ ] Configure MP-BGP VPNv4 peering between provider edge routers.
-* [ ] Exchange customer site routes across the MPLS L3VPN.
-* [ ] Verify MPLS label distribution and label-switched forwarding.
-* [ ] Verify customer routes are installed in the correct VRFs.
-* [ ] Validate end-to-end connectivity between the two customer sites.
-* [ ] Confirm the provider core router does not require customer LAN routes.
+* [x] Configure IS-IS as the provider core routing protocol.
+* [x] Configure MPLS and LDP across the provider core.
+* [x] Configure customer VRFs on the provider edge routers.
+* [x] Configure MP-BGP VPNv4 peering between provider edge routers.
+* [x] Exchange customer site routes across the MPLS L3VPN.
+* [x] Verify MPLS label distribution and label-switched forwarding.
+* [x] Verify customer routes are installed in the correct VRFs.
+* [x] Validate end-to-end connectivity between the two customer sites.
+* [x] Confirm the provider core router does not require customer LAN routes.
 
 ---
 
@@ -35,7 +34,8 @@ Each customer site contains an access switch with an SVI used as the end-to-end 
 
 The provider network consists of two provider edge routers and one internal provider router. PE1 and PE2 provide MPLS L3VPN services to the customer sites, while P1 operates only as an MPLS core router and does not maintain customer LAN routes.
 
-![Topology Diagram](topology/<diagram-file-name>)
+- [Open topology diagram](topology/diagram.png)
+- [Open CML topology export](topology/topology.yaml)
 
 ---
 
@@ -47,10 +47,10 @@ The provider network consists of two provider edge routers and one internal prov
 | ------------ | -------------------- | ----------- | -------------------- | ------------------------------------ |
 | TSA1         | GigabitEthernet0/0   | TSD1        | GigabitEthernet0/0   | Site A access-to-distribution link   |
 | TSD1         | GigabitEthernet0/1   | TSE1        | GigabitEthernet0/0   | Site A internal routed uplink        |
-| TSE1         | GigabitEthernet0/1   | PE1         | GigabitEthernet0/0   | Site A CE-to-PE WAN link             |
+| TSE1         | GigabitEthernet0/1   | PE1         | GigabitEthernet0/0   | Site A TSE1-to-PE1 WAN link          |
 | PE1          | GigabitEthernet0/1   | P1          | GigabitEthernet0/0   | Provider MPLS core link              |
 | P1           | GigabitEthernet0/1   | PE2         | GigabitEthernet0/0   | Provider MPLS core link              |
-| PE2          | GigabitEthernet0/1   | TSE2        | GigabitEthernet0/1   | Site B PE-to-CE WAN link             |
+| PE2          | GigabitEthernet0/1   | TSE2        | GigabitEthernet0/1   | Site B PE2-to-TSE2 WAN link          |
 | TSE2         | GigabitEthernet0/0   | TSD2        | GigabitEthernet0/1   | Site B internal routed uplink        |
 | TSD2         | GigabitEthernet0/0   | TSA2        | GigabitEthernet0/0   | Site B distribution-to-access link   |
 
@@ -100,11 +100,11 @@ The provider network consists of two provider edge routers and one internal prov
 
 ### IS-IS Underlay
 
-| Device | IS-IS Process | NET                         | Level   | Loopback0  | Enabled Links                  |
-| ------ | ------------- | --------------------------- | ------- | ---------- | ------------------------------ |
-| PE1    | CORE          | 49.0001.0001.0001.0001.00   | Level 2 | 1.1.1.1/32 | Loopback0, PE1–P1              |
-| P1     | CORE          | 49.0001.0002.0002.0002.00   | Level 2 | 2.2.2.2/32 | Loopback0, P1–PE1, P1–PE2      |
-| PE2    | CORE          | 49.0001.0003.0003.0003.00   | Level 2 | 3.3.3.3/32 | Loopback0, PE2–P1              |
+| Device | IS-IS Process          | NET                         | Level   | Loopback0  | Enabled Links                  |
+| ------ | ---------------------- | --------------------------- | ------- | ---------- | ------------------------------ |
+| PE1    | PROVIDER_CORE          | 49.0001.0001.0001.0001.00   | Level 2 | 1.1.1.1/32 | Loopback0, PE1–P1              |
+| P1     | PROVIDER_CORE          | 49.0001.0002.0002.0002.00   | Level 2 | 2.2.2.2/32 | Loopback0, P1–PE1, P1–PE2      |
+| PE2    | PROVIDER_CORE          | 49.0001.0003.0003.0003.00   | Level 2 | 3.3.3.3/32 | Loopback0, PE2–P1              |
 
 ### LDP / MPLS Transport
 
@@ -135,7 +135,7 @@ The provider network consists of two provider edge routers and one internal prov
 
 > **Note:** The CLI examples below are annotated for readability. Clean device configurations are available in [`configs/`](configs/).
 
-> **Design note:** Add any important design, protocol, or lab-specific warning here. Keep this specific to the lab.
+> **Design note:** P1 operates only as a provider-core transit router. Customer routes remain in the PE VRFs and are not installed in P1's global routing table.
 
 **TSA1**
 
@@ -145,23 +145,32 @@ enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname TSA1 # Sets hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+no ip routing # Ensures the access switch operates as a Layer 2 device so ip default-gateway is used for off-subnet management/test traffic.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
+
 
 # Create VLAN 10
 vlan 10 # Creates VLAN 10 for the Site A customer LAN
 name SITE_A_LAN # Assigns a descriptive name to VLAN 10
+exit # Returns to global configuration mode.
 
 # Place interface into VLAN 10
 interface gigabitethernet0/0 # Enters the interface connected to TSD1
-description LINK_TO_TD1 # Identifies the interface as the uplink to TSD1
+description LINK_TO_TSD1 # Identifies the interface as the uplink to TSD1
 switchport mode access # Configures the TSD1-facing interface as a static Layer 2 access port.
 switchport access vlan 10 # Assigns TSA1-facing access port to VLAN 10
 no shutdown # Enables the physical interface toward TSD1
+exit # Returns to global configuration mode.
 
 #Creates and configures SVI vlan10
 interface vlan10 # Enters the Layer 3 SVI for VLAN 10
 description SITE_A_TEST_ENDPOINT # Identifies the SVI as the Site A test endpoint.
 ip address 10.10.10.10 255.255.255.0 # Assigns the Site A test endpoint IP address to Vlan10.
 no shutdown # Enables the Vlan10 SVI
+exit # Returns to global configuration mode.
 
 #Sets default gateway
 ip default-gateway 10.10.10.1 # Configures TSD1 as TSA1's gateway for non-local traffic
@@ -178,10 +187,16 @@ enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname TSD1 # Sets hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+ip routing # Enables Layer 3 routing on TSD1.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 # Create VLAN 10
 vlan 10 # Creates VLAN 10 for the Site A Customer LAN
 name SITE_A_LAN # Assigns a descriptive name to VLAN 10.
+exit # Returns to global configuration mode.
 
 # Place interface into VLAN 10
 interface GigabitEthernet0/0 # Enters the interface connected to TSA1.
@@ -189,20 +204,21 @@ description LINK_TO_TSA1 # Identifies the interface as the link toward TSA1.
 switchport mode access # Configures the TSA1-facing interface as a static Layer 2 access port.
 switchport access vlan 10 # Assigns the TSA1-facing access port to VLAN 10.
 no shutdown # Enables the physical interface toward TSA1
+exit # Returns to global configuration mode.
 
 #Creates and configures SVI vlan10
 interface Vlan10 # Enters the Layer 3 SVI for the Site A customer LAN.
 description SITE_A_LAN_GATEWAY # Identifies Vlan10 as the default gateway interface for the Site A LAN.
 ip address 10.10.10.1 255.255.255.0 # Assigns the Site A LAN gateway address to Vlan10.
 no shutdown # Enables the Vlan10 SVI.
-
-ip routing # Enables Layer 3 routing on TSD1.
+exit # Returns to global configuration mode.
 
 interface gigabitEthernet0/1 # Enters the routed uplink interface connected to TSE1
 description LINK_TO_TSE1 # Identifies the interface as the routed uplink toward TSE1.
 no switchport # Converts GigabitEthernet0/1 from a Layer 2 switchport into a Layer 3 routed interface.
 ip address 10.10.255.1 255.255.255.252 # Assigns the TSD1-to-TSE1 transit address to the routed uplink.
 no shutdown # Enables the routed uplink interface toward TSE1.
+exit # Returns to global configuration mode.
 
 ip route 0.0.0.0 0.0.0.0 10.10.255.2 # Configures a default route toward TSE1 for all non-local traffic.
 
@@ -219,17 +235,23 @@ configure terminal # Enters global configuration mode.
 hostname TSE1 # Sets hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
 
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
+
 interface GigabitEthernet0/0 # Enters the interface connected to TSD1.
 description LINK_TO_TSD1 # Identifies the interface as the routed link toward TSD1.
 ip address 10.10.255.2 255.255.255.252 # Assigns TSE1's address on the routed transit link to TSD1.
 no shutdown # Enables the routed interface toward TSD1.
+exit # Returns to global configuration mode.
 
 ip route 10.10.10.0 255.255.255.0 10.10.255.1 # Adds a static route to the Site A LAN through TSD1.
 
 interface GigabitEthernet0/1 # Enters the interface connected to PE1.
 description LINK_TO_PE1 # Identifies the interface as the WAN link toward PE1.
-ip address 172.16.1.1 255.255.255.252 # Assigns TSE1's address on the CE-to-PE WAN link.
-no shutdown # Enables the CE-to-PE WAN interface toward PE1.
+ip address 172.16.1.1 255.255.255.252 # Assigns TSE1's address on the TSE1-to-PE1 WAN link.
+no shutdown # Enables the TSE1-to-PE1 WAN interface toward PE1.
+exit # Returns to global configuration mode.
 
 ip route 0.0.0.0 0.0.0.0 172.16.1.2 # Configures a default route toward PE1 for all non-local traffic.
 
@@ -246,6 +268,10 @@ enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname PE1 # Sets the device hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 # Configures IS-IS as PE1's dynamic routing protocol for Layer 3 reachability across the provider core.
 router isis PROVIDER_CORE # Creates the IS-IS process used for routing inside the provider core network.
@@ -285,7 +311,7 @@ exit # Returns to global configuration mode.
 interface GigabitEthernet0/0 # Enters PE1's customer-facing interface toward TSE1.
 description LINK_TO_TSE1 # Identifies GigabitEthernet0/0 as PE1's customer-facing link toward TSE1.
 ip vrf forwarding CUSTOMER_A # Associates this interface with the CUSTOMER_A routing and forwarding table.
-ip address 172.16.1.2 255.255.255.252 # Assigns PE1's address on the CUSTOMER_A CE-to-PE link toward TSE1.
+ip address 172.16.1.2 255.255.255.252 # Assigns PE1's address on the CUSTOMER_A TSE1-to-PE1 link toward TSE1.
 no shutdown # Enables PE1's customer-facing interface toward TSE1.
 exit # Returns to global configuration mode.
 
@@ -308,40 +334,49 @@ address-family ipv4 vrf CUSTOMER_A # Enters the CUSTOMER_A-specific IPv4 BGP add
 redistribute static # Injects CUSTOMER_A's static routes into BGP so they can be advertised through MP-BGP VPNv4.
 exit-address-family # Returns to BGP router configuration mode.
 
-exit # Leaves BGP router configuration mode and returns to global configuration mode.
-
 end # Returns to privileged EXEC mode.
 write memory # Saves the running configuration.
 ```
 
-**P**
+**P1**
 
 ```bash
-# <Device 2> Configuration Block
+# P1 Configuration Block
 enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname P1 # Sets hostname.
+no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 router isis PROVIDER_CORE # Creates the IS-IS process used for Layer 3 routing inside the provider core network.
 net 49.0001.0002.0002.0002.00 # Assigns P1's unique IS-IS NET within the provider IS-IS domain.
 is-type level-2-only # Restricts P1 to Level 2 IS-IS routing for the provider core.
+exit # Returns to global configuration mode.
 
 interface Loopback0 # Creates P1's stable control-plane interface for IS-IS reachability and its LDP router ID.
 description PROVIDER_LOOPBACK # Identifies Loopback0 as P1's stable provider control-plane interface.
 ip address 2.2.2.2 255.255.255.255 # Assigns P1's stable /32 loopback address used as its provider control-plane identifier.
 ip router isis PROVIDER_CORE # Advertises P1's Loopback0 into the provider IS-IS process so the other provider routers can reach 2.2.2.2.
+exit # Returns to global configuration mode.
 
 interface GigabitEthernet0/0 # Enters P1's provider-core-facing interface toward PE1.
 description LINK_TO_PE1 # Identifies GigabitEthernet0/0 as P1's provider-core link toward PE1.
 ip address 10.0.12.2 255.255.255.252 # Assigns P1's IP address on the point-to-point provider-core link toward PE1.
 ip router isis PROVIDER_CORE # Enables IS-IS on P1's link toward PE1 so the two routers can form an IS-IS adjacency and exchange provider routes.
 mpls ip # Enables MPLS forwarding and LDP on P1's core-facing link toward PE1.
+no shutdown # Enables the provider-core interface.
+exit # Returns to global configuration mode.
 
 interface GigabitEthernet0/1 # Enters P1's provider-core-facing interface toward PE2.
 description LINK_TO_PE2 # Identifies GigabitEthernet0/1 as P1's provider-core link toward PE2.
 ip address 10.0.23.1 255.255.255.252 # Assigns P1's IP address on the point-to-point provider-core link toward PE2.
 ip router isis PROVIDER_CORE # Enables IS-IS on P1's link toward PE2 so the two routers can form an IS-IS adjacency and exchange provider routes.
 mpls ip # Enables MPLS forwarding and LDP on P1's core-facing link toward PE2.
+no shutdown # Enables the provider-core interface.
+exit # Returns to global configuration mode.
 
 mpls ldp router-id Loopback0 force # Forces P1 to use its stable Loopback0 address, 2.2.2.2, as its LDP router ID.
 mpls label protocol ldp # Sets LDP as the protocol P1 uses to distribute MPLS label bindings with its provider neighbors.
@@ -358,6 +393,10 @@ enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname PE2 # Sets the device hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 # Configures IS-IS as PE2's dynamic routing protocol for Layer 3 reachability across the provider core.
 router isis PROVIDER_CORE # Creates the IS-IS process used for routing inside the provider core network.
@@ -397,7 +436,7 @@ exit # Returns to global configuration mode.
 interface GigabitEthernet0/1 # Enters PE2's customer-facing interface toward TSE2.
 description LINK_TO_TSE2 # Identifies GigabitEthernet0/1 as PE2's customer-facing link toward TSE2.
 ip vrf forwarding CUSTOMER_A # Associates this interface with the CUSTOMER_A routing and forwarding table.
-ip address 172.16.2.1 255.255.255.252 # Assigns PE2's address on the CUSTOMER_A CE-to-PE link toward TSE2.
+ip address 172.16.2.1 255.255.255.252 # Assigns PE2's address on the CUSTOMER_A TSE2-to-PE2 link toward TSE2.
 no shutdown # Enables PE2's customer-facing interface toward TSE2.
 exit # Returns to global configuration mode.
 
@@ -426,55 +465,63 @@ end # Returns to privileged EXEC mode.
 write memory # Saves the running configuration.
 ```
 
-**CE2**
+**TSE2**
 
 ```bash
-# CE2 Configuration Block
+# TSE2 Configuration Block
 
 enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
-hostname CE2 # Sets the device hostname.
+hostname TSE2 # Sets the device hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
 
-# Configures CE2's routed link toward D2.
-interface GigabitEthernet0/0 # Enters CE2's customer-LAN-facing routed interface toward D2.
-description LINK_TO_D2 # Identifies the interface as the routed link toward D2.
-ip address 10.20.255.2 255.255.255.252 # Assigns CE2's address on the CE2-to-D2 point-to-point network.
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
+
+# Configures TSE2's routed link toward TSD2.
+interface GigabitEthernet0/0 # Enters TSE2's customer-LAN-facing routed interface toward TSD2.
+description LINK_TO_TSD2 # Identifies the interface as the routed link toward TSD2.
+ip address 10.20.255.2 255.255.255.252 # Assigns TSE2's address on the TSE2-to-TSD2 point-to-point network.
 no shutdown # Enables the interface.
 exit # Returns to global configuration mode.
 
-# Configures CE2's routed WAN handoff toward PE2.
-interface GigabitEthernet0/1 # Enters CE2's provider-facing interface toward PE2.
+# Configures TSE2's routed WAN handoff toward PE2.
+interface GigabitEthernet0/1 # Enters TSE2's provider-facing interface toward PE2.
 description LINK_TO_PE2 # Identifies the interface as the customer-to-provider handoff toward PE2.
-ip address 172.16.2.2 255.255.255.252 # Assigns CE2's address on the CE-to-PE point-to-point network.
+ip address 172.16.2.2 255.255.255.252 # Assigns TSE2's address on the TSE2-to-PE2 WAN link.
 no shutdown # Enables the interface.
 exit # Returns to global configuration mode.
 
 # Adds routing for Site B's local LAN and remote destinations.
-ip route 10.20.20.0 255.255.255.0 10.20.255.1 # Routes Site B's LAN toward D2.
+ip route 10.20.20.0 255.255.255.0 10.20.255.1 # Routes Site B's LAN toward TSD2.
 ip route 0.0.0.0 0.0.0.0 172.16.2.1 # Sends remote traffic toward PE2 and the provider MPLS L3VPN.
 
 end
 write memory
 ```
 
-**D2**
+**TSD2**
 
 ```bash
-# D2 Configuration Block
+# TSD2 Configuration Block
 enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
-hostname D2 # Sets the device hostname.
+hostname TSD2 # Sets the device hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
-ip routing # Enables Layer 3 routing on D2.
+ip routing # Enables Layer 3 routing on TSD2.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 # Creates Site B's LAN VLAN.
 vlan 20 # Creates VLAN 20 for the Site B LAN.
 name SITE_B_LAN # Assigns a descriptive name to VLAN 20.
 exit # Returns to global configuration mode.
 
-# Configures D2's Layer 2 link toward TSA2.
-interface GigabitEthernet0/0 # Enters D2's interface toward TSA2.
+# Configures TSD2's Layer 2 link toward TSA2.
+interface GigabitEthernet0/0 # Enters TSD2's interface toward TSA2.
 description LINK_TO_TSA2 # Identifies the interface as the link toward TSA2.
 switchport mode access # Configures the interface as a Layer 2 access port.
 switchport access vlan 20 # Places the interface into Site B VLAN 20.
@@ -488,16 +535,16 @@ ip address 10.20.20.1 255.255.255.0 # Assigns the Site B LAN gateway address.
 no shutdown # Enables the SVI.
 exit # Returns to global configuration mode.
 
-# Configures D2's routed uplink toward CE2.
-interface GigabitEthernet0/1 # Enters the routed interface toward CE2.
-description LINK_TO_CE2 # Identifies the interface as the routed uplink toward CE2.
+# Configures TSD2's routed uplink toward TSE2.
+interface GigabitEthernet0/1 # Enters the routed interface toward TSE2.
+description LINK_TO_TSE2 # Identifies the interface as the routed uplink toward TSE2.
 no switchport # Converts the interface from Layer 2 switching to Layer 3 routing.
-ip address 10.20.255.1 255.255.255.252 # Assigns D2's address on the D2-to-CE2 point-to-point network.
+ip address 10.20.255.1 255.255.255.252 # Assigns TSD2's address on the TSD2-to-TSE2 point-to-point network.
 no shutdown # Enables the interface.
 exit # Returns to global configuration mode.
 
-# Sends traffic for remote networks toward CE2.
-ip route 0.0.0.0 0.0.0.0 10.20.255.2 # Uses CE2 as D2's default next hop for remote destinations.
+# Sends traffic for remote networks toward TSE2.
+ip route 0.0.0.0 0.0.0.0 10.20.255.2 # Uses TSE2 as TSD2's default next hop for remote destinations.
 
 end
 write memory
@@ -511,15 +558,20 @@ enable # Enters privileged EXEC mode.
 configure terminal # Enters global configuration mode.
 hostname TSA2 # Sets the device hostname.
 no ip domain-lookup # Disables DNS lookup for mistyped or unrecognized CLI commands.
+no ip routing # Ensures the access switch operates as a Layer 2 device so ip default-gateway is used for off-subnet management/test traffic.
+
+line console 0 # Targets line console 0
+logging synchronous # Makes log/debug messages print cleanly
+exit # Returns to global configuration mode.
 
 # Creates Site B's LAN VLAN.
 vlan 20 # Creates VLAN 20 for the Site B LAN.
 name SITE_B_LAN # Assigns a descriptive name to VLAN 20.
 exit # Returns to global configuration mode.
 
-# Configures TSA2's Layer 2 link toward D2.
-interface GigabitEthernet0/0 # Enters TSA2's uplink toward D2.
-description LINK_TO_D2 # Identifies the interface as TSA2's link toward D2.
+# Configures TSA2's Layer 2 link toward TSD2.
+interface GigabitEthernet0/0 # Enters TSA2's uplink toward TSD2.
+description LINK_TO_TSD2 # Identifies the interface as TSA2's link toward TSD2.
 switchport mode access # Configures the interface as a Layer 2 access port.
 switchport access vlan 20 # Places the interface into Site B VLAN 20.
 no shutdown # Enables the interface.
@@ -532,8 +584,8 @@ ip address 10.20.20.10 255.255.255.0 # Assigns TSA2's test endpoint address.
 no shutdown # Enables the SVI.
 exit # Returns to global configuration mode.
 
-# Configures D2 as TSA2's default gateway.
-ip default-gateway 10.20.20.1 # Sends off-subnet traffic toward D2.
+# Configures TSD2 as TSA2's default gateway.
+ip default-gateway 10.20.20.1 # Sends off-subnet traffic toward TSD2.
 
 end
 write memory
@@ -576,9 +628,9 @@ ping 10.10.10.1 # Verifies Layer 3 reachability from TSA1 to TSD1's VLAN 10 defa
 **TSD1**
 
 ```bash
-show ip interface brief # Verifies Vlan10 and the routed link toward CE1 are up/up with the expected IP addresses.
-show ip route 0.0.0.0 # Verifies TSD1 has a default route pointing toward CE1 at 10.10.255.2.
-ping 10.10.255.2 # Verifies Layer 3 reachability from TSD1 to CE1 across the customer-edge routed link.
+show ip interface brief # Verifies Vlan10 and the routed link toward TSE1 are up/up with the expected IP addresses.
+show ip route 0.0.0.0 # Verifies TSD1 has a default route pointing toward TSE1 at 10.10.255.2.
+ping 10.10.255.2 # Verifies Layer 3 reachability from TSD1 to TSE1 across the customer-edge routed link.
 ```
 
 ### Site B — Layer 2 Verification
@@ -612,33 +664,33 @@ ping 10.20.20.1 # Verifies Layer 3 reachability from TSA2 to TSD2's VLAN 20 defa
 **TSD2**
 
 ```bash
-show ip interface brief # Verifies Vlan20 and the routed link toward CE2 are up/up with the expected IP addresses.
-show ip route 0.0.0.0 # Verifies TSD2 has a default route pointing toward CE2 at 10.20.255.2.
-ping 10.20.255.2 # Verifies Layer 3 reachability from TSD2 to CE2 across the customer-edge routed link.
+show ip interface brief # Verifies Vlan20 and the routed link toward TSE2 are up/up with the expected IP addresses.
+show ip route 0.0.0.0 # Verifies TSD2 has a default route pointing toward TSE2 at 10.20.255.2.
+ping 10.20.255.2 # Verifies Layer 3 reachability from TSD2 to TSE2 across the customer-edge routed link.
 ```
 
 ---
 
 ## Customer Edge Verification
 
-### CE1 Verification
+### TSE1 Verification
 
 ```bash
 show ip interface brief # Verifies the routed interfaces toward TSD1 and PE1 are up/up with the expected IP addresses.
-show ip route 10.10.10.0 # Verifies CE1 has a route to the Site A LAN through TSD1 at 10.10.255.1.
-show ip route 0.0.0.0 # Verifies CE1 has a default route toward PE1 at 172.16.1.2.
-ping 10.10.255.1 # Verifies Layer 3 reachability from CE1 toward TSD1.
-ping 172.16.1.2 # Verifies Layer 3 reachability across the CE1-to-PE1 provider handoff.
+show ip route 10.10.10.0 # Verifies TSE1 has a route to the Site A LAN through TSD1 at 10.10.255.1.
+show ip route 0.0.0.0 # Verifies TSE1 has a default route toward PE1 at 172.16.1.2.
+ping 10.10.255.1 # Verifies Layer 3 reachability from TSE1 toward TSD1.
+ping 172.16.1.2 # Verifies Layer 3 reachability across the TSE1-to-PE1 provider handoff.
 ```
 
-### CE2 Verification
+### TSE2 Verification
 
 ```bash
 show ip interface brief # Verifies the routed interfaces toward TSD2 and PE2 are up/up with the expected IP addresses.
-show ip route 10.20.20.0 # Verifies CE2 has a route to the Site B LAN through TSD2 at 10.20.255.1.
-show ip route 0.0.0.0 # Verifies CE2 has a default route toward PE2 at 172.16.2.1.
-ping 10.20.255.1 # Verifies Layer 3 reachability from CE2 toward TSD2.
-ping 172.16.2.1 # Verifies Layer 3 reachability across the CE2-to-PE2 provider handoff.
+show ip route 10.20.20.0 # Verifies TSE2 has a route to the Site B LAN through TSD2 at 10.20.255.1.
+show ip route 0.0.0.0 # Verifies TSE2 has a default route toward PE2 at 172.16.2.1.
+ping 10.20.255.1 # Verifies Layer 3 reachability from TSE2 toward TSD2.
+ping 172.16.2.1 # Verifies Layer 3 reachability across the TSE2-to-PE2 provider handoff.
 ```
 
 ---
@@ -722,6 +774,7 @@ show mpls forwarding-table # Verifies PE2 has active MPLS forwarding entries for
 ```bash
 show ip bgp vpnv4 all summary # Verifies PE1's VPNv4 iBGP session with PE2 is established and receiving VPNv4 prefixes.
 show ip bgp vpnv4 all # Verifies PE1's VPNv4 table contains the expected local and remote customer VPN routes, including RD-qualified prefixes and BGP next hops.
+show ip bgp vpnv4 all labels # Verifies CUSTOMER_A VPNv4 routes have associated MPLS VPN/service labels distributed through MP-BGP.
 ```
 
 **PE2**
@@ -729,6 +782,7 @@ show ip bgp vpnv4 all # Verifies PE1's VPNv4 table contains the expected local a
 ```bash
 show ip bgp vpnv4 all summary # Verifies PE2's VPNv4 iBGP session with PE1 is established and receiving VPNv4 prefixes.
 show ip bgp vpnv4 all # Verifies PE2's VPNv4 table contains the expected local and remote customer VPN routes, including RD-qualified prefixes and BGP next hops.
+show ip bgp vpnv4 all labels # Verifies CUSTOMER_A VPNv4 routes have associated MPLS VPN/service labels distributed through MP-BGP.
 ```
 
 ### VRF Route Verification
@@ -744,6 +798,17 @@ show ip route vrf CUSTOMER_A # Verifies PE1's CUSTOMER_A VRF contains the expect
 ```bash
 show ip route vrf CUSTOMER_A # Verifies PE2's CUSTOMER_A VRF contains the expected local Site B route and remote Site A route learned through the MPLS L3VPN.
 ```
+
+### Provider Core Customer-Route Isolation Verification
+
+**P1**
+
+```bash
+show ip route 10.10.10.0 # Verifies the Site A customer prefix is absent from P1's global routing table.
+show ip route 10.20.20.0 # Verifies the Site B customer prefix is absent from P1's global routing table.
+```
+
+The expected result is that neither customer LAN prefix is present on P1. P1 transports MPLS-labeled traffic between the provider edges without maintaining CUSTOMER_A routes in its IP routing table.
 
 ---
 
@@ -762,19 +827,13 @@ ping 10.10.10.10 # Verifies end-to-end CUSTOMER_A connectivity from Site B back 
 ```
 
 ---
-## Packet Captures
-
-- IS-IS control plane — confirm adjacency maintenance on a provider-core link.
-- LDP control plane — confirm LDP discovery/session traffic and label mapping exchanges.
-- MP-BGP VPNv4 control plane — confirm TCP/179 between PE loopbacks and VPNv4 route exchange.
-- MPLS L3VPN data plane — ping TSA1 to TSA2 and inspect the outer transport label, inner VPN label, and label changes across P1.
 
 ## Troubleshooting
 
 > **Note:** These are quick-reference checks for this lab and are not intended to be an exhaustive troubleshooting guide. After correcting an issue, re-run the relevant verification steps.
 
 ```bash
-# Customer LAN or CE reachability issue.
+# Customer LAN or TSE reachability issue.
 show ip interface brief # Check that expected routed interfaces and SVIs are up/up with the correct IP addresses.
 show ip route # Confirm the required connected, static, and default routes are present.
 ping <next-hop-ip> # Test reachability to the directly connected next hop before troubleshooting farther into the path.
@@ -807,9 +866,9 @@ ping <remote-customer-ip> # Confirm whether the complete MPLS L3VPN path is work
 | Type           | Location                                                                         |
 | -------------- | -------------------------------------------------------------------------------- |
 | Configurations | [`configs/`](configs/)                                                           |
-| Diagram        | [`topology/<diagram-file-name>`](topology/<diagram-file-name>)                   |
+| Diagram        | [`topology/diagram`](topology/diagram.png)                                       |
 | Topology File  | [`topology/topology.yaml`](topology/topology.yaml)                               |
-| Verification   | [`verification/verification_commands.md`](verification/verification_commands.md) |
+| Verification   | [`verification/verification-commands.md`](verification/verification-commands.md) |
 
 ---
 
@@ -818,5 +877,5 @@ ping <remote-customer-ip> # Confirm whether the complete MPLS L3VPN path is work
 | Field        | Value         |
 | ------------ | ------------- |
 | Lab Version  | 1.0           |
-| Last Updated | <YYYY-MM-DD>  |
+| Last Updated | 2026-09-07    |
 | Author       | Aaron Kindelt |
