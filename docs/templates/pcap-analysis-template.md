@@ -1,111 +1,87 @@
-# <Protocol / Feature> Packet Capture Analysis
-
-This file contains packet-level analysis for the <Lab Name> lab.
-
-The capture demonstrates <brief statement describing the overall protocol behavior>.
-
----
-
-## Capture Information
-
-**Capture Point:** <Device/interface> ↔ <Device/interface>
-
-**Traffic Generation:** <Action used to generate or expose the traffic>
-
-**PCAP:** `<filename.pcap>`
+# PCAP Analysis
+ 
+## Capture Overview
+ 
+| Field              | Value                                                |
+|--------------------|------------------------------------------------------|
+| Capture File       | `<capture-name>.pcap`                                |
+| Capture Point      | `<device/interface/link>`                            |
+| Protocol / Traffic | `<OSPF / BGP / ARP / ICMP / DHCP / etc.>`            |
+| Purpose            | `<What behavior this capture is intended to verify>` |
 
 ---
 
-## Expected Flow
-
-`<Stage 1> → <Stage 2> → <Stage 3> → <Stage 4>`
-
----
-
-## 1. <Protocol Stage>
-
-**Purpose:** <What this stage accomplishes in the protocol process.>
-
-### Packet <number> — <source> → <destination> — <message type>
-
+## Traffic Flow
+ 
+> Remove this section when packet sequencing is not important to the analysis.
+ 
 ```text
-<important decoded fields only>
+<DEVICE-A>                         <DEVICE-B>
+    |                                  |
+    | ---- <Message / Packet> -------> |
+    |                                  |
+    | <--- <Message / Packet> -------- |
+    |                                  |
+    | ---- <Message / Packet> -------> |
+    |                                  |
 ```
-
-### Interpretation
-
-* `<field>` — <what the field proves or means>.
-* `<field>` — <what the field proves or means>.
-* `<field>` — <what the field proves or means>.
-
-**Result:** <One sentence explaining what has now occurred in the protocol flow.>
+ 
+`<Briefly explain the exchange and what the sequence demonstrates.>`
 
 ---
-
-## 2. <Protocol Stage>
-
-**Purpose:** <What this stage accomplishes.>
-
-### Packet <number> — <source> → <destination> — <message type>
-
+ 
+## Wireshark Filter
+ 
 ```text
-<important decoded fields>
+<display filter>
 ```
+ 
+ ---
 
-### Packet <number> — <source> → <destination> — <message type>
-
-```text
-<important decoded fields>
-```
-
-### Interpretation
-
-* `<field>` — <explanation>.
-* `<field>` — <explanation>.
-
-**Result:** <What these packets collectively prove.>
-
----
-
-## 3. <Protocol Stage>
-
-**Purpose:** <What this stage accomplishes.>
-
-### Packet <number> — <source> → <destination> — <message type>
-
-```text
-<important decoded fields>
-```
-
-### Interpretation
-
-#### <Message Type 1>
-
-* `<field>` — <explanation>.
-* `<field>` — <explanation>.
-
-#### <Message Type 2>
-
-* `<field>` — <explanation>.
-* `<field>` — <explanation>.
-
-**Result:** <What this stage proves.>
-
----
-
-## CLI Correlation
-
-The packet capture can be correlated with the device control-plane or forwarding state.
-
-```text
-<relevant show command output>
-```
-
-* `<captured value>` corresponds to `<CLI value or behavior>`.
-* <Brief explanation of why the relationship matters.>
-
----
-
-## What This Demonstrates
-
-<Short paragraph summarizing the complete protocol behavior demonstrated by the capture and why the evidence matters.>
+## Packet Analysis
+ 
+### Packet `<number>` — `<Packet / Message Type>`
+ 
+**Source:** `<IP / MAC>`  
+**Destination:** `<IP / MAC>`  
+**Protocol:** `<protocol>`
+ 
+| Field     | Observed Value | Significance         |
+|-----------|----------------|----------------------|
+| `<field>` | `<value>`      | `<Why this matters>` |
+| `<field>` | `<value>`      | `<Why this matters>` |
+| `<field>` | `<value>`      | `<Why this matters>` |
+ 
+**Interpretation**
+ 
+`<Explain what this packet demonstrates. Focus on why the packet exists, what the important fields mean, and how they relate to the expected protocol behavior.>`
+ 
+### Packet `<number>` — `<Packet / Message Type>`
+ 
+**Source:** `<IP / MAC>`  
+**Destination:** `<IP / MAC>`  
+**Protocol:** `<protocol>`
+ 
+| Field     | Observed Value | Significance         |
+|-----------|----------------|----------------------|
+| `<field>` | `<value>`      | `<Why this matters>` |
+| `<field>` | `<value>`      | `<Why this matters>` |
+ 
+**Interpretation**
+ 
+`<Explain how this packet relates to the previous packet and what stage of the exchange or protocol process it represents.>`
+ 
+ ---
+ 
+## Conclusion
+ 
+The capture confirms that `<specific protocol behavior or traffic flow>` occurred as expected.
+ 
+Key evidence:
+ 
+- `<Important verified behavior>`
+- `<Important field, state, flag, address, or protocol value>`
+- `<Important response, transition, or forwarding result>`
+ 
+The packet-level evidence is consistent with the CLI verification recorded in the lab.
+ 
