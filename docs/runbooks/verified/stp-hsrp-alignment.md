@@ -94,45 +94,6 @@ show spanning-tree vlan 30
 - [ ] The current spanning-tree root bridge is identified for each VLAN.
 - [ ] The desired HSRP-to-STP alignment has been documented before changes are made.
 - [ ] No unexpected HSRP or spanning-tree state is present that should be corrected before alignment.
-
----
-
-## Prerequisites and Pre-Checks
- 
-Before aligning spanning-tree root placement with HSRP gateway roles, confirm that both features are already configured and operating as intended.
- 
-### Prerequisites
- 
-- [ ] The participating multilayer switches are powered on and accessible for configuration.
-- [ ] The required device baselines have already been applied.
-- [ ] The required VLANs and SVIs have already been configured.
-- [ ] HSRP is configured and operational for the affected VLANs.
-- [ ] Rapid-PVST is configured and operational for the affected VLANs.
-- [ ] The intended HSRP active and standby roles have been defined.
-- [ ] The intended spanning-tree root and secondary-root roles have been defined.
-- [ ] Required Layer 2 trunks and EtherChannels are operational.
-- [ ] The existing HSRP and spanning-tree configurations have been validated independently.
- 
-### Baseline Verification
- 
-Run these commands on both multilayer switches before applying alignment changes.
- 
-```bash
-show standby brief
-show spanning-tree root
-show spanning-tree vlan 10
-show spanning-tree vlan 20
-show spanning-tree vlan 30
-```
- 
-### Expected Baseline Results
- 
-- [ ] HSRP is operational for each affected VLAN.
-- [ ] The active and standby HSRP roles match the intended gateway design.
-- [ ] Rapid-PVST is operational for each affected VLAN.
-- [ ] The current spanning-tree root bridge is identified for each VLAN.
-- [ ] The desired HSRP-to-STP alignment has been documented before changes are made.
-- [ ] No unexpected HSRP or spanning-tree state is present that should be corrected before alignment.
  
 ## Configuration Procedure
  
@@ -247,7 +208,7 @@ Expected results:
 
 ---
 
-### If Validation Fails
+## If Validation Fails
  
 If post-configuration validation does not produce the expected results:
  
@@ -259,7 +220,7 @@ If post-configuration validation does not produce the expected results:
 - Review trunk and EtherChannel state if the expected spanning-tree topology is not present.
 - Correct the affected configuration.
 - Re-run the failed validation step.
-- If the issue cannot be resolved, return the affected HSRP or spanning-tree configuration to its previous known-good state before continuing.
+- If the issue cannot be resolved, return the affected spanning-tree configuration to its previous known-good state before continuing.
  
 
 ---
@@ -276,7 +237,7 @@ Before removing or changing the configuration, confirm:
 - Current trunk and EtherChannel paths are understood.
 - The previous spanning-tree priorities are known.
 - The effect of returning to the previous root placement is understood.
-- Both multilayer switches can be returned to their previous known-good HSRP and spanning-tree state if required.
+- Both multilayer switches can be returned to their previous known-good spanning-tree state if required.
  
 For lab use, restore the last known working configuration before continuing additional validation.
 
@@ -292,4 +253,4 @@ For lab use, restore the last known working configuration before continuing addi
 | Applies To       | Cisco IOS multilayer switches                    |
 | Primary Use Case | Align STP root placement with HSRP gateway roles |
 | Version          | 1.0                                              |
-| Last Updated     | 2026-09-15                                       |
+| Last Updated     | 2026-09-20                                       |
