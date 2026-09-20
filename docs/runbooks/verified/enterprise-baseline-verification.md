@@ -53,7 +53,7 @@ Each device is expected to have its appropriate role-specific baseline applied b
  
 Before beginning enterprise baseline verification, confirm that the topology and role-specific baseline documentation are available.
  
-### Prerequisites
+## Prerequisites
  
 - [ ] All devices required by the enterprise topology are present and accessible.
 - [ ] Each device has been assigned its intended network role.
@@ -64,19 +64,26 @@ Before beginning enterprise baseline verification, confirm that the topology and
 - [ ] Feature-specific configuration has not yet been applied unless explicitly required by a device baseline.
  
 ### Baseline Verification
- 
+
 Perform an initial access and inventory check before beginning detailed enterprise baseline validation.
- 
-Run on Cisco IOS devices:
- 
+
+Run on Cisco IOS switches:
+
 ```bash
 show running-config | include ^hostname
 show ip interface brief
 show interfaces status
 ```
- 
+
+Run on Cisco IOS routers:
+
+```bash
+show running-config | include ^hostname
+show ip interface brief
+```
+
 Run on Cisco ASAv devices:
- 
+
 ```bash
 show running-config hostname
 show interface ip brief
@@ -93,7 +100,6 @@ show running-config interface Management0/0
 - [ ] Physical interfaces are present and available for detailed validation.
 - [ ] No unexpected device or interface state prevents the baseline verification process from continuing.
 - [ ] Any approved baseline deviations are documented before detailed validation begins.
-has context menu
 
 ---
 
@@ -223,7 +229,7 @@ Expected results:
 
 ---
 
-### If Validation Fails
+## If Validation Fails
  
 If enterprise baseline validation does not produce the expected results:
  
@@ -258,4 +264,4 @@ If validation identifies an incorrect or incomplete baseline, use the applicable
 | Applies To       | Multi-device Cisco enterprise environments |
 | Primary Use Case | Integrated enterprise baseline readiness   |
 | Version          | 1.0                                        |
-| Last Updated     | 2026-09-15                                 |
+| Last Updated     | 2026-09-20                                 |
