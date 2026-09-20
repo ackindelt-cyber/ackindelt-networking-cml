@@ -86,7 +86,7 @@ show ip route
  
 - [ ] The required VLANs exist and are active.
 - [ ] The target SVIs are not already configured with conflicting IP addresses.
-- [ ] The switch is capable of Layer 3 routing.
+- [ ] `ip routing` is enabled as part of the multilayer switch baseline.
 - [ ] No unexpected connected routes exist for the target VLAN subnets.
 - [ ] No conflicting Layer 3 configuration is present.
 
@@ -195,7 +195,7 @@ Expected results:
 
 ---
 
-### If Validation Fails
+## If Validation Fails
  
 If post-configuration validation does not produce the expected results:
  
@@ -237,4 +237,4 @@ For lab use, restore the last known working configuration before continuing addi
 | Applies To       | Cisco IOS multilayer switches           |
 | Primary Use Case | SVI creation and inter-VLAN routing     |
 | Version          | 1.0                                     |
-| Last Updated     | 2026-09-14                              |
+| Last Updated     | 2026-09-20                              |
