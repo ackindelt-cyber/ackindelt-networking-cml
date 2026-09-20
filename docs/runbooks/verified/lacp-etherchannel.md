@@ -49,7 +49,7 @@ The resulting Port-Channel operates as an 802.1Q trunk carrying VLANs 10, 20, an
  
 | Port-Channel | Allowed VLANs | Native VLAN |
 |--------------|---------------|-------------|
-| Po1          | 10,20,30      | 99          |
+| Po1          | 10,20,30,99   | 99          |
  
 ### VLAN Summary
  
@@ -74,6 +74,7 @@ Before configuring the LACP EtherChannel, confirm that the participating interfa
 - [ ] The required device baselines have already been applied.
 - [ ] The required VLANs exist on both switches.
 - [ ] The physical interfaces selected for the EtherChannel have been identified.
+- [ ] The selected member interfaces are operating as Layer 2 switchports.
 - [ ] The selected member interfaces are not currently used for another production connection.
 - [ ] The selected member interfaces are not already assigned to another EtherChannel.
 - [ ] The Port-Channel number has been defined.
@@ -130,9 +131,11 @@ channel-group 1 mode active # Adds interfaces to Port-Channel 1 using active LAC
 no shutdown # Administratively enables member interfaces
  
 interface port-channel 1 # Targets the logical EtherChannel interface
+switchport trunk encapsulation dot1q # Sets 802.1Q trunk encapsulation
 switchport mode trunk # Configures Port-Channel 1 as a Layer 2 trunk
-switchport trunk allowed vlan 10,20,30 # Allows VLANs 10, 20, and 30 across the EtherChannel
+switchport nonegotiate # Disables DTP negotiation on the static trunk
 switchport trunk native vlan 99 # Sets VLAN 99 as the native VLAN
+switchport trunk allowed vlan 10,20,30,99 # Allows VLANs 10, 20, 30, and 99 across the EtherChannel
  
 end # Return to privileged EXEC mode
 write memory # Save the running configuration
@@ -152,9 +155,11 @@ channel-group 1 mode active # Adds interfaces to Port-Channel 1 using active LAC
 no shutdown # Administratively enables member interfaces
  
 interface port-channel 1 # Targets the logical EtherChannel interface
+switchport trunk encapsulation dot1q # Sets 802.1Q trunk encapsulation
 switchport mode trunk # Configures Port-Channel 1 as a Layer 2 trunk
-switchport trunk allowed vlan 10,20,30 # Allows VLANs 10, 20, and 30 across the EtherChannel
+switchport nonegotiate # Disables DTP negotiation on the static trunk
 switchport trunk native vlan 99 # Sets VLAN 99 as the native VLAN
+switchport trunk allowed vlan 10,20,30,99 # Allows VLANs 10, 20, 30, and 99 across the EtherChannel
  
 end # Return to privileged EXEC mode
 write memory # Save the running configuration
@@ -215,8 +220,9 @@ Expected results:
  
 - [ ] `Port-channel1` is administratively configured for trunking.
 - [ ] `Port-channel1` is operationally trunking.
+- [ ] Trunk encapsulation is 802.1Q.
 - [ ] The native VLAN is VLAN 99.
-- [ ] VLANs 10, 20, and 30 are allowed on the trunk.
+- [ ] VLANs 10, 20, 30, and 99 are allowed on the trunk.
 - [ ] `Port-channel1` appears in the trunk summary.
 - [ ] The expected VLANs are active and forwarding across the Port-Channel.
  
@@ -281,4 +287,4 @@ For lab use, restore the last known working configuration before continuing addi
 | Applies To       | Cisco IOS / IOSvL2 switches                |
 | Primary Use Case | Layer 2 LACP EtherChannel configuration    |
 | Version          | 1.0                                        |
-| Last Updated     | 2026-09-11                                 |
+| Last Updated     | 2026-09-20                                 |
