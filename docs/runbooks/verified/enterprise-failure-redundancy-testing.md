@@ -10,7 +10,7 @@ This runbook focuses on integrated failure testing after individual network feat
  
 Typical failure scenarios include EtherChannel member loss, access uplink failure, HSRP gateway failover, spanning-tree reconvergence, firewall failover, and recovery to the intended normal operating state.
  
- ## Scope and Assumptions
+## Scope and Assumptions
  
 This runbook assumes:
  
@@ -77,13 +77,14 @@ Before beginning enterprise failure and redundancy testing, confirm that the com
 - [ ] Routing, DHCP relay, firewalling, and PAT are operating as intended.
 - [ ] Test endpoints have valid addressing and can reach all required test destinations.
 - [ ] The network is in its documented normal operating state before any failure is introduced.
+- [ ] HSRP preemption is configured where the preferred gateway is expected to automatically resume the active role after recovery.
  
 ### Baseline Verification
- 
+
 Run the applicable commands before beginning controlled failure testing.
- 
-On Cisco IOS switches and routers:
- 
+
+On Cisco IOS switches:
+
 ```bash
 show interfaces status
 show etherchannel summary
@@ -91,16 +92,23 @@ show spanning-tree root
 show standby brief
 show ip route
 ```
- 
+
+On Cisco IOS routers:
+
+```bash
+show ip interface brief
+show ip route
+```
+
 On Cisco ASAv firewalls:
- 
+
 ```bash
 show failover
 show interface ip brief
 show route
 show nat detail
 ```
- 
+
 From the test endpoint, verify normal end-to-end connectivity using the appropriate test commands for the environment.
  
 ### Expected Baseline Results
@@ -359,12 +367,8 @@ Return the firewall pair to the intended normal operating roles and verify the f
  
 ---
  
-### Step 6 — Verify Full Network Recovery
- 
-After all failed components have been restored, verify the complete enterprise topology.
- 
-On Cisco IOS devices:
- 
+On Cisco IOS switches:
+
 ```bash
 show interfaces status
 show etherchannel summary
@@ -372,9 +376,16 @@ show spanning-tree root
 show standby brief
 show ip route
 ```
- 
+
+On Cisco IOS routers:
+
+```bash
+show ip interface brief
+show ip route
+```
+
 On Cisco ASAv firewalls:
- 
+
 ```bash
 show failover
 show interface ip brief
@@ -399,7 +410,7 @@ Expected results:
 
 ---
 
-### If Validation Fails
+## If Validation Fails
  
 If any enterprise failure or redundancy test does not produce the expected results:
  
