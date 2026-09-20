@@ -69,7 +69,7 @@ Before configuring DHCP relay, confirm that the client gateway interfaces, DHCP 
 - [ ] The DHCP server is configured with the required scopes and DHCP options.
 - [ ] The DHCP server IPv4 address has been defined.
 - [ ] The client subnets requiring DHCP relay have been identified.
-- [ ] The Layer 3 device has a valid route to the DHCP server network.
+- [ ] Routing between the DHCP relay device and the DHCP server network is available in both directions.
 - [ ] No conflicting DHCP relay configuration is already present on the target interfaces.
  
 ### Baseline Verification
@@ -181,7 +181,7 @@ Expected results:
 
 ---
 
-### If Validation Fails
+## If Validation Fails
  
 If post-configuration validation does not produce the expected results:
  
