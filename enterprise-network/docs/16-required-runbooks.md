@@ -3,7 +3,7 @@
 ## Status
 
 **Status:** Draft  
-**Last Updated:** 2026-08-30  
+**Last Updated:** 2026-09-10  
 **Applies To:** Talos Solutions Enterprise Campus v1  
 **Document Type:** Planning / Build Reference  
 
@@ -13,7 +13,7 @@
 
 This document tracks the reusable runbooks required to build the Talos Solutions Enterprise Campus v1 lab.
 
-The purpose of this document is to identify which available module runbooks can be reused, which runbooks need to be split or replaced, which runbooks are in progress, and which runbooks still need to be created before the enterprise lab can be built cleanly.
+The purpose of this document is to identify which reusable runbooks are available, which runbooks are still in progress, which runbooks still need to be created, and how each runbook supports the integrated enterprise build.
 
 ---
 
@@ -23,18 +23,18 @@ The purpose of this document is to identify which available module runbooks can 
 
 - Required v1 runbooks
 - Available reusable runbooks
-- Runbooks that need to be split or replaced
 - Runbooks currently in progress
 - Runbooks still needed
 - Purpose of each runbook
-- Enterprise lab dependency notes
+- Enterprise lab dependencies
+- Runbooks scheduled for replacement or retirement
 
 ### Out of Scope
 
 - Full runbook content
-- Device configurations
-- Verification output
-- Troubleshooting procedures
+- Final device configurations
+- Recorded verification output
+- Final troubleshooting documentation
 - Final enterprise lab build documentation
 - Future v2 multi-site runbooks
 
@@ -42,15 +42,15 @@ The purpose of this document is to identify which available module runbooks can 
 
 ## Summary
 
-The Talos Solutions Enterprise Campus v1 lab should be built from reusable module runbooks where possible.
+The Talos Solutions Enterprise Campus v1 lab is built from reusable module runbooks wherever practical.
 
-The enterprise lab is not intended to replace the module runbooks. Instead, the enterprise lab should consume validated module patterns and combine them into a larger integrated topology.
+The enterprise lab does not replace the individual module runbooks. Instead, the enterprise build consumes validated configuration and verification patterns and combines them into a larger integrated topology.
 
 The required v1 runbook set covers:
 
 - Device baseline preparation
-- VLAN creation
-- Access ports
+- Outside transit switch preparation
+- VLAN creation and access ports
 - 802.1Q trunking
 - SVIs and inter-VLAN routing
 - LACP EtherChannel
@@ -61,109 +61,126 @@ The required v1 runbook set covers:
 - DHCP server
 - DHCP relay
 - ASAv baseline
-- ASAv routed firewall and PAT
+- ASAv routed firewall operation and PAT
 - ASAv active/standby failover
 - Enterprise baseline verification
 - Enterprise failure and redundancy testing
 
 ---
 
+## Current Enterprise Devices
+
+| Device   | Role                                      |
+|----------|-------------------------------------------|
+| ISP1     | Simulated upstream ISP router             |
+| TSE1     | Enterprise edge router                    |
+| TSOS1    | Outside transit switch                    |
+| TSFW1    | Primary ASAv firewall                     |
+| TSFW2    | Secondary ASAv firewall                   |
+| TSCOR1   | Core/distribution switch                  |
+| TSCOR2   | Core/distribution switch                  |
+| TSAS1    | Access switch                             |
+| TSAS2    | Access switch                             |
+| TSAS3    | Access switch                             |
+| TSINF1   | Infrastructure router / DHCP server       |
+| TSPC1    | Client endpoint                           |
+| TSPC2    | Client endpoint                           |
+| TSPC3    | Client endpoint                           |
+
+---
+
 ## Runbook Status Values
 
-| Status | Meaning |
-|---|---|
-| Available | Runbook already exists and can be reused for the enterprise lab |
-| In progress | Runbook is actively being built or refined |
-| Needed | Runbook still needs to be created before the enterprise build is complete |
-| Retire after replacement | Existing runbook should be retired after cleaner replacement runbooks are created |
-| Optional future | Useful later, but not required for baseline v1 |
+| Status                   | Meaning                                                                    |
+|--------------------------|----------------------------------------------------------------------------|
+| Available                | Runbook exists and can be reused for the enterprise lab                    |
+| In progress              | Runbook is actively being built or refined                                 |
+| Needed                   | Runbook still needs to be created before the enterprise build is complete  |
+| Retire after replacement | Existing runbook should be retired after replacement runbooks are complete |
+| Optional future          | Useful later, but not required for enterprise v1                           |
 
 ---
 
 ## Required Runbook Set
 
-This table tracks the active runbooks required for the v1 enterprise build.
+This table tracks the active runbooks required for the Talos Solutions Enterprise Campus v1 build.
 
-Folder placement is intentionally not finalized in this document. The priority is to identify which runbooks are required, what their current status is, and how they support the enterprise lab.
-
-| Runbook | Status | Enterprise Use | Notes |
-|---|---|---|---|
-| `rapid-pvst-root-bridge-placement.md` | Available | STP root placement | Reused for CORE1/CORE2 preferred root placement |
-| `hsrp.md` | Available | Gateway redundancy | Reused for CORE1/CORE2 HSRP gateway design |
-| `basic-dhcp-server.md` | Available | DHCP server | Reused for INFRA1 DHCP service |
-| `vlan-creation-and-access-ports.md` | Needed | VLANs and access ports | Replaces part of the old combined VLAN/trunk/SVI runbook |
-| `802.1q-trunking.md` | Needed | Trunking | Replaces part of the old combined VLAN/trunk/SVI runbook |
-| `svi-and-inter-vlan-routing.md` | Needed | SVIs and inter-VLAN routing | Replaces part of the old combined VLAN/trunk/SVI runbook |
-| `asav-routed-firewall-and-pat.md` | In progress | Firewall routed mode and PAT | Required for outbound firewall behavior |
-| `asav-active-standby-failover.md` | In progress | Firewall HA | Required for FW1/FW2 active/standby failover |
-| `access-switch-baseline.md` | Needed | Access switch preparation | Used by ASW1, ASW2, and ASW3 |
-| `core-distribution-switch-baseline.md` | Needed | Core switch preparation | Used by CORE1 and CORE2 |
-| `router-baseline.md` | Needed | Router preparation | Used by ISP1, EDGE1, and INFRA1 |
-| `asav-baseline.md` | Needed | Firewall preparation | Used by FW1 and FW2 before HA, routing, and PAT |
-| `lacp-etherchannel.md` | Needed | Port-channels | Used for inter-core and core-to-access LACP bundles |
-| `static-routing-and-default-routes.md` | Needed | Static routing | Used by ISP1, EDGE1, FW1/FW2, CORE1/CORE2, and INFRA1 |
-| `dhcp-relay.md` | Needed | DHCP relay | Used by CORE1/CORE2 SVIs for client VLANs |
-| `stp-hsrp-alignment.md` | Needed | STP/HSRP alignment | Documents the design pattern that aligns L2 and L3 preferred paths |
-| `enterprise-baseline-verification.md` | Needed | Integrated verification | Validates normal-state operation of the full enterprise lab |
-| `enterprise-failure-and-redundancy-testing.md` | Needed | Failure testing | Validates failover and redundancy behavior across the integrated lab |
-
----
-
-## Runbook Replacement / Retirement
-
-The following older combined runbook should be retired after the replacement runbooks are created.
-
-| Current Runbook | Status | Replacement Plan |
-|---|---|---|
-| `vlan-trunks-svi-inter-vlan-routing.md` | Retire after replacement | Split into `vlan-creation-and-access-ports.md`, `802.1q-trunking.md`, and `svi-and-inter-vlan-routing.md` |
-
-Reason:
-
-The current combined runbook covers too many separate concepts. Splitting it will make each replacement runbook easier to reuse, validate, and reference from the enterprise build.
+| Runbook                                         | Status      | Enterprise Use               | Notes                                                       |
+|-------------------------------------------------|-------------|------------------------------|-------------------------------------------------------------|
+| `access-switch-baseline.md`                     | Available   | Access switch preparation    | Used by TSAS1, TSAS2, and TSAS3                             |
+| `core-distribution-switch-baseline.md`          | Available   | Core switch preparation      | Used by TSCOR1 and TSCOR2                                   |
+| `router-baseline.md`                            | Available   | IOS router preparation       | Used by ISP1, TSE1, and TSINF1                              |
+| `asav-baseline.md`                              | Available   | Firewall preparation         | Used by TSFW1 and TSFW2                                     |
+| `outside-transit-switch-baseline.md`            | Available   | Outside switch preparation   | Used by TSOS1                                               |
+| `rapid-pvst-root-bridge-placement.md`           | Available   | STP root placement           | Used for TSCOR1/TSCOR2 preferred root placement             |
+| `hsrp.md`                                       | Available   | Gateway redundancy           | Used for TSCOR1/TSCOR2 HSRP gateway design                  |
+| `basic-dhcp-server.md`                          | Available   | DHCP server                  | Used by TSINF1                                              |
+| `vlan-creation-and-access-ports.md`             | Needed      | VLANs and access ports       | Replaces part of the older combined VLAN runbook            |
+| `802.1q-trunking.md`                            | Needed      | Trunking                     | Replaces part of the older combined VLAN runbook            |
+| `svi-and-inter-vlan-routing.md`                 | Needed      | SVIs and inter-VLAN routing  | Replaces part of the older combined VLAN runbook            |
+| `lacp-etherchannel.md`                          | Needed      | Port-channels                | Used for inter-core and core-to-access LACP bundles         |
+| `static-routing-and-default-routes.md`          | Needed      | Static routing               | Used across routed infrastructure                           |
+| `dhcp-relay.md`                                 | Needed      | DHCP relay                   | Used on TSCOR1/TSCOR2 client VLAN SVIs                      |
+| `stp-hsrp-alignment.md`                         | Needed      | STP/HSRP alignment           | Aligns Layer 2 and Layer 3 preferred forwarding paths       |
+| `asav-routed-firewall-and-pat.md`               | In progress | Firewall routing and PAT     | Required for outbound firewall behavior                     |
+| `asav-active-standby-failover.md`               | In progress | Firewall HA                  | Required for TSFW1/TSFW2 active/standby operation           |
+| `enterprise-baseline-verification.md`           | Needed      | Integrated verification      | Validates normal-state operation of the complete topology   |
+| `enterprise-failure-and-redundancy-testing.md`  | Needed      | Failure testing              | Validates redundancy and failover across the complete lab   |
 
 ---
 
 ## Final Active Runbook Count
 
-After the combined VLAN/trunk/SVI/inter-VLAN routing runbook is retired and replaced by the three split runbooks, the v1 active runbook set should contain:
+After the older combined VLAN/trunk/SVI/inter-VLAN routing runbook is retired and replaced by the three focused runbooks, the v1 active runbook set contains:
 
 ```text
-18 active runbooks
+19 active runbooks
 ```
 
-Count:
+| Status                   | Count |
+|--------------------------|-------|
+| Available                | 8     |
+| In progress              | 2     |
+| Needed                   | 9     |
+| Total active v1 runbooks | 19    |
 
-| Status | Count |
-|---|---:|
-| Available | 3 |
-| In progress | 2 |
-| Needed | 13 |
-| Total active v1 runbooks | 18 |
+---
 
-The retired combined VLAN/trunk/SVI/inter-VLAN routing runbook should not be counted as an active v1 runbook after replacement.
+## Runbook Replacement / Retirement
+
+The following older combined runbook should be retired after its replacement runbooks are completed.
+
+| Current Runbook                         | Status                   | Replacement Plan                                                                                                     |
+|-----------------------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `vlan-trunks-svi-inter-vlan-routing.md` | Retire after replacement | Split into `vlan-creation-and-access-ports.md`, `802.1q-trunking.md`, and `svi-and-inter-vlan-routing.md`             |
+
+The existing combined runbook covers too many independent concepts. Splitting it makes each procedure easier to reuse, validate, maintain, and reference from the enterprise build.
 
 ---
 
 ## Enterprise Lab Dependency Map
 
-| Enterprise Lab Area | Required Runbooks |
-|---|---|
-| Base device preparation | `access-switch-baseline.md`, `core-distribution-switch-baseline.md`, `router-baseline.md`, `asav-baseline.md` |
-| VLAN and access ports | `vlan-creation-and-access-ports.md` |
-| Trunking | `802.1q-trunking.md` |
-| Port-channels | `lacp-etherchannel.md` |
-| Core Layer 3 | `svi-and-inter-vlan-routing.md` |
-| Gateway redundancy | `hsrp.md` |
-| STP root placement | `rapid-pvst-root-bridge-placement.md` |
-| STP/HSRP design alignment | `stp-hsrp-alignment.md` |
-| Static routing | `static-routing-and-default-routes.md` |
-| DHCP server | `basic-dhcp-server.md` |
-| DHCP relay | `dhcp-relay.md` |
-| Firewall baseline | `asav-baseline.md` |
-| Firewall routed mode and PAT | `asav-routed-firewall-and-pat.md` |
-| Firewall HA | `asav-active-standby-failover.md` |
-| Integrated verification | `enterprise-baseline-verification.md` |
-| Failure testing | `enterprise-failure-and-redundancy-testing.md` |
+| Enterprise Lab Area          | Required Runbooks                                                                                                                          |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| Access switch baseline       | `access-switch-baseline.md`                                                                                                                |
+| Core switch baseline         | `core-distribution-switch-baseline.md`                                                                                                     |
+| Router baseline              | `router-baseline.md`                                                                                                                       |
+| Outside switch baseline      | `outside-transit-switch-baseline.md`                                                                                                       |
+| Firewall baseline            | `asav-baseline.md`                                                                                                                         |
+| VLANs and access ports       | `vlan-creation-and-access-ports.md`                                                                                                        |
+| Trunking                     | `802.1q-trunking.md`                                                                                                                       |
+| Port-channels                | `lacp-etherchannel.md`                                                                                                                     |
+| Core Layer 3                 | `svi-and-inter-vlan-routing.md`                                                                                                            |
+| Gateway redundancy           | `hsrp.md`                                                                                                                                  |
+| STP root placement           | `rapid-pvst-root-bridge-placement.md`                                                                                                      |
+| STP/HSRP alignment           | `stp-hsrp-alignment.md`                                                                                                                    |
+| Static routing               | `static-routing-and-default-routes.md`                                                                                                     |
+| DHCP server                  | `basic-dhcp-server.md`                                                                                                                     |
+| DHCP relay                   | `dhcp-relay.md`                                                                                                                            |
+| Firewall routed mode and PAT | `asav-routed-firewall-and-pat.md`                                                                                                          |
+| Firewall HA                  | `asav-active-standby-failover.md`                                                                                                          |
+| Integrated verification      | `enterprise-baseline-verification.md`                                                                                                      |
+| Failure testing              | `enterprise-failure-and-redundancy-testing.md`                                                                                             |
 
 ---
 
@@ -173,28 +190,29 @@ The retired combined VLAN/trunk/SVI/inter-VLAN routing runbook should not be cou
 
 Purpose:
 
-- Prepare Layer 2 access switches for enterprise use.
+- Prepare Layer 2 access switches for enterprise deployment.
 
 Expected coverage:
 
 - Hostname
 - Disable DNS lookup
+- Disable Layer 3 routing
 - Basic console settings
-- VLAN creation where needed
-- Access switch management SVI
-- Default gateway
+- Management VLAN
+- Management SVI
+- Management default gateway
 - PortFast default
 - BPDU Guard default
-- Interface descriptions
+- Parking VLAN
 - Unused port handling
+- Baseline validation
 - Save configuration
 
 Used by:
 
-- ASW1
-- ASW2
-- ASW3
-- Possibly OS1 if kept as a simple Layer 2 switch baseline case
+- TSAS1
+- TSAS2
+- TSAS3
 
 ---
 
@@ -210,16 +228,17 @@ Expected coverage:
 - Disable DNS lookup
 - Enable `ip routing`
 - Basic console settings
-- VLAN creation readiness
-- SVI readiness
-- Trunk readiness
-- Interface descriptions
+- Management VLAN
+- Management SVI
+- Parking VLAN
+- Unused port handling
+- Layer 3 baseline validation
 - Save configuration
 
 Used by:
 
-- CORE1
-- CORE2
+- TSCOR1
+- TSCOR2
 
 ---
 
@@ -227,27 +246,54 @@ Used by:
 
 Purpose:
 
-- Prepare IOS routers used as routed infrastructure nodes.
+- Prepare Cisco IOS routers used as routed infrastructure nodes.
 
 Expected coverage:
 
 - Hostname
 - Disable DNS lookup
 - Basic console settings
-- Routed interface preparation
-- Static route readiness
-- Interface descriptions
+- Clean interface baseline state
+- Clean routing baseline state
+- Baseline validation
 - Save configuration
 
 Used by:
 
 - ISP1
-- EDGE1
-- INFRA1
+- TSE1
+- TSINF1
 
 Design note:
 
-INFRA1 is a DHCP server, but it is still an IOSv router from a baseline configuration perspective.
+The same generic router baseline is reused for all three IOS routed infrastructure devices. Role-specific interface addressing, routing, and services are applied through separate runbooks.
+
+---
+
+### `outside-transit-switch-baseline.md`
+
+Purpose:
+
+- Prepare the dedicated Layer 2 outside transit switch connecting the enterprise edge router to the firewall pair.
+
+Expected coverage:
+
+- Hostname
+- Disable DNS lookup
+- Disable Layer 3 routing
+- Basic console settings
+- Outside transit VLAN
+- TSE1-facing access port
+- TSFW1-facing access port
+- TSFW2-facing access port
+- Parking VLAN
+- Unused port shutdown
+- Baseline validation
+- Save configuration
+
+Used by:
+
+- TSOS1
 
 ---
 
@@ -255,22 +301,23 @@ INFRA1 is a DHCP server, but it is still an IOSv router from a baseline configur
 
 Purpose:
 
-- Prepare ASAv firewalls before routing, NAT, policy, or failover configuration.
+- Prepare ASAv firewalls before production interface, routing, NAT, policy, or failover configuration.
 
 Expected coverage:
 
 - Hostname
-- Interface naming readiness
-- Interface descriptions
-- Basic interface state
-- Security-level planning
-- Basic management considerations
+- Dedicated management interface
+- Management interface naming
+- Management IP addressing
+- Management-only interface behavior
+- Baseline interface validation
+- Baseline running-configuration validation
 - Save configuration
 
 Used by:
 
-- FW1
-- FW2
+- TSFW1
+- TSFW2
 
 ---
 
@@ -278,25 +325,27 @@ Used by:
 
 Purpose:
 
-- Configure VLANs and access ports on IOSvL2 switches.
+- Configure VLANs and endpoint access ports on Cisco IOS Layer 2 and multilayer switches.
 
 Expected coverage:
 
 - VLAN creation
 - VLAN naming
 - Access port assignment
-- Parking VLAN
-- Unused port shutdown
-- Basic access port validation
+- Access port validation
+- VLAN membership validation
 
 Used by:
 
-- OS1
-- CORE1
-- CORE2
-- ASW1
-- ASW2
-- ASW3
+- TSCOR1
+- TSCOR2
+- TSAS1
+- TSAS2
+- TSAS3
+
+Design note:
+
+TSOS1 receives its outside transit VLAN and port assignments through its dedicated baseline runbook and does not require the normal campus access-port procedure for that role.
 
 ---
 
@@ -317,11 +366,11 @@ Expected coverage:
 
 Used by:
 
-- CORE1
-- CORE2
-- ASW1
-- ASW2
-- ASW3
+- TSCOR1
+- TSCOR2
+- TSAS1
+- TSAS2
+- TSAS3
 
 ---
 
@@ -335,15 +384,15 @@ Expected coverage:
 
 - SVI creation
 - SVI IP addressing
-- `ip routing`
+- Layer 3 switching
 - Connected route validation
-- Inter-VLAN ping testing
-- Troubleshooting down/down or up/down SVIs
+- Inter-VLAN reachability
+- SVI operational-state validation
 
 Used by:
 
-- CORE1
-- CORE2
+- TSCOR1
+- TSCOR2
 
 ---
 
@@ -358,16 +407,16 @@ Expected coverage:
 - LACP active mode
 - Member interface configuration
 - Port-channel interface configuration
-- Trunking over port-channel
+- 802.1Q trunking over port-channel
 - EtherChannel verification
 - Common mismatch troubleshooting
 
 Used by:
 
-- CORE1 to CORE2
-- CORE1/CORE2 to ASW1
-- CORE1/CORE2 to ASW2
-- CORE1/CORE2 to ASW3
+- TSCOR1 to TSCOR2
+- TSCOR1/TSCOR2 to TSAS1
+- TSCOR1/TSCOR2 to TSAS2
+- TSCOR1/TSCOR2 to TSAS3
 
 ---
 
@@ -380,19 +429,19 @@ Purpose:
 Expected coverage:
 
 - STP mode
-- Root primary
-- Root secondary
+- Root primary placement
+- Root secondary placement
 - Per-VLAN root placement
 - STP verification
 - Basic STP troubleshooting
 
 Used by:
 
-- CORE1
-- CORE2
-- ASW1
-- ASW2
-- ASW3
+- TSCOR1
+- TSCOR2
+- TSAS1
+- TSAS2
+- TSAS3
 
 ---
 
@@ -404,7 +453,7 @@ Purpose:
 
 Expected coverage:
 
-- HSRP VIPs
+- HSRP virtual IP addresses
 - Active/standby roles
 - Priority
 - Preemption
@@ -413,8 +462,8 @@ Expected coverage:
 
 Used by:
 
-- CORE1
-- CORE2
+- TSCOR1
+- TSCOR2
 
 ---
 
@@ -434,15 +483,15 @@ Expected coverage:
 
 Used by:
 
-- CORE1
-- CORE2
-- ASW1
-- ASW2
-- ASW3
+- TSCOR1
+- TSCOR2
+- TSAS1
+- TSAS2
+- TSAS3
 
 Design note:
 
-This deserves its own runbook because STP/HSRP alignment is a core design principle of the enterprise lab.
+STP/HSRP alignment is documented separately because it combines two independent technologies into a single enterprise forwarding design.
 
 ---
 
@@ -456,19 +505,20 @@ Expected coverage:
 
 - Static default routes
 - Specific static routes
-- Route summaries
+- Route summaries where applicable
 - Next-hop validation
 - Routing table verification
-- Ping/traceroute validation
+- Ping and traceroute validation
 
 Used by:
 
 - ISP1
-- EDGE1
-- FW1/FW2
-- CORE1
-- CORE2
-- INFRA1
+- TSE1
+- TSFW1
+- TSFW2
+- TSCOR1
+- TSCOR2
+- TSINF1
 
 ---
 
@@ -476,21 +526,21 @@ Used by:
 
 Purpose:
 
-- Configure and validate a basic IOS DHCP server.
+- Configure and validate a basic Cisco IOS DHCP server.
 
 Expected coverage:
 
 - DHCP service
 - Excluded addresses
 - DHCP pools
-- Default router option
-- Optional DNS/domain options
+- Default-router option
+- Optional DNS and domain options
 - DHCP binding verification
 - DHCP pool verification
 
 Used by:
 
-- INFRA1
+- TSINF1
 
 ---
 
@@ -498,20 +548,20 @@ Used by:
 
 Purpose:
 
-- Configure and validate DHCP relay from routed VLANs to INFRA1.
+- Configure and validate DHCP relay from client VLANs to TSINF1.
 
 Expected coverage:
 
 - `ip helper-address`
-- Relay on client VLAN SVIs
+- Relay configuration on client VLAN SVIs
 - DHCP relay traffic flow
 - Client lease validation
 - Common relay troubleshooting
 
 Used by:
 
-- CORE1
-- CORE2
+- TSCOR1
+- TSCOR2
 
 ---
 
@@ -523,18 +573,22 @@ Purpose:
 
 Expected coverage:
 
-- Inside/outside interfaces
-- Security levels
-- Static routing
+- Inside and outside interfaces
+- Interface security levels
+- Firewall routing
 - Object NAT or manual NAT
 - PAT validation
-- Basic stateful traffic behavior
+- Stateful traffic behavior
 - Firewall route validation
 
 Used by:
 
-- FW1
-- FW2 as HA pair members
+- TSFW1
+- TSFW2
+
+Design note:
+
+The routed firewall configuration must be compatible with the active/standby HA design used by the firewall pair.
 
 ---
 
@@ -547,17 +601,18 @@ Purpose:
 Expected coverage:
 
 - Failover roles
-- Failover/state link
+- Failover and state link
 - Active/standby interface addressing
 - Failover status validation
 - Interface monitoring
-- Active firewall failure test
-- Standby takeover test
+- Active firewall failure
+- Standby takeover
+- Recovery and failback behavior where tested
 
 Used by:
 
-- FW1
-- FW2
+- TSFW1
+- TSFW2
 
 ---
 
@@ -565,12 +620,13 @@ Used by:
 
 Purpose:
 
-- Validate normal-state operation of the fully integrated enterprise lab.
+- Validate normal-state operation of the fully integrated Talos Solutions Enterprise Campus v1 topology.
 
 Expected coverage:
 
-- Interface status
+- Physical interface status
 - VLANs
+- Access ports
 - Trunks
 - Port-channels
 - STP
@@ -580,7 +636,7 @@ Expected coverage:
 - Firewall HA
 - PAT
 - Management reachability
-- End-to-end client testing
+- End-to-end client connectivity
 
 Used by:
 
@@ -592,21 +648,21 @@ Used by:
 
 Purpose:
 
-- Validate failure and redundancy behavior across the integrated enterprise lab.
+- Validate failure and redundancy behavior across the integrated enterprise topology.
 
 Expected coverage:
 
 - Single LACP member failure
 - Full uplink bundle failure
-- CORE1 failure
-- CORE2 failure
+- TSCOR1 failure
+- TSCOR2 failure
 - HSRP failover
 - STP reconvergence
-- Firewall active/standby failover
-- Firewall failback if tested
-- DHCP behavior after failover
+- TSFW1/TSFW2 failover
+- Firewall failback where tested
+- DHCP behavior during infrastructure failure
 - PAT behavior after firewall failover
-- Client reachability before and after failures
+- Client reachability before, during, and after failures
 
 Used by:
 
@@ -616,26 +672,26 @@ Used by:
 
 ## Optional Future Runbooks
 
-The following runbooks may be useful later but are not required for baseline v1:
+The following runbooks may be useful later but are not required for enterprise v1:
 
-| Runbook | Purpose |
-|---|---|
-| `dns-server.md` | Configure lightweight DNS service |
-| `syslog-server.md` | Configure centralized syslog collection |
-| `ntp-server.md` | Configure time synchronization |
-| `ssh-management.md` | Configure SSH access and local users |
-| `management-acls.md` | Restrict management-plane access |
-| `port-security.md` | Add access port security |
-| `dhcp-snooping.md` | Add DHCP snooping |
-| `dynamic-arp-inspection.md` | Add DAI |
-| `ip-source-guard.md` | Add IP Source Guard |
-| `snmpv3.md` | Add SNMPv3 monitoring |
-| `netflow.md` | Add flow export |
-| `dmz-and-inbound-nat.md` | Add DMZ and inbound NAT testing |
-| `site-to-site-vpn.md` | Add VPN connectivity |
-| `ospf-integrated-enterprise.md` | Add dynamic routing to integrated topology |
-| `ansible-enterprise-build.md` | Automate enterprise lab configuration |
-| `pyats-enterprise-validation.md` | Automate enterprise lab validation |
+| Runbook                         | Purpose                                  |
+|---------------------------------|------------------------------------------|
+| `dns-server.md`                 | Configure lightweight DNS service        |
+| `syslog-server.md`              | Configure centralized syslog collection  |
+| `ntp-server.md`                 | Configure time synchronization           |
+| `ssh-management.md`             | Configure SSH access and local users     |
+| `management-acls.md`            | Restrict management-plane access         |
+| `port-security.md`              | Add access-port security                 |
+| `dhcp-snooping.md`              | Add DHCP snooping                        |
+| `dynamic-arp-inspection.md`     | Add Dynamic ARP Inspection               |
+| `ip-source-guard.md`            | Add IP Source Guard                      |
+| `snmpv3.md`                     | Add SNMPv3 monitoring                    |
+| `netflow.md`                    | Add flow export                          |
+| `dmz-and-inbound-nat.md`        | Add DMZ and inbound NAT testing          |
+| `site-to-site-vpn.md`           | Add VPN connectivity                     |
+| `ospf-integrated-enterprise.md` | Add dynamic routing to the topology      |
+| `ansible-enterprise-build.md`   | Automate enterprise configuration        |
+| `pyats-enterprise-validation.md`| Automate enterprise validation           |
 
 ---
 
@@ -645,42 +701,44 @@ A runbook is considered ready for enterprise use when it includes:
 
 - Purpose
 - Scope
-- Topology assumptions
+- Reference design or topology assumptions
+- Prerequisites and pre-checks
 - Configuration steps
 - Inline command explanations or comments
-- Verification steps
+- Post-configuration validation
 - Expected results
-- Troubleshooting notes
-- Cleanup or reset notes if needed
-- Related enterprise lab dependencies
+- Validation failure guidance
+- Backout considerations
+- Enterprise lab dependencies where applicable
 
 ---
 
 ## Relationship to Enterprise Documents
 
-The runbooks explain how to configure and validate individual technologies.
+The runbooks explain how to configure and validate reusable network technologies and device roles.
 
-The enterprise documents explain how those technologies are combined into the Talos Solutions Enterprise Campus v1 design.
+The enterprise documents explain how those reusable patterns are combined into the Talos Solutions Enterprise Campus v1 design.
 
-The distinction should remain clear:
-
-| Artifact Type | Purpose |
-|---|---|
-| Module runbook | Teaches or documents one reusable technology pattern |
-| Enterprise design doc | Explains how the technology is used in the enterprise lab |
-| Enterprise config file | Stores the final device configuration |
-| Enterprise verification doc | Proves the integrated lab works |
+| Artifact Type               | Purpose                                                   |
+|-----------------------------|-----------------------------------------------------------|
+| Module runbook              | Documents one reusable technology or device-role pattern  |
+| Enterprise design document  | Explains how technologies are used in the enterprise lab  |
+| Enterprise configuration    | Stores final device configuration                         |
+| Enterprise verification     | Proves the integrated topology operates as designed       |
+| Enterprise failure testing  | Proves redundancy and recovery behavior                   |
 
 ---
 
 ## Design Notes
 
-- The enterprise lab should consume validated module runbooks rather than reinvent each technology from scratch.
-- Some runbooks are reusable across many future labs.
-- Enterprise-specific behavior should be documented in the enterprise docs, not forced into generic runbooks.
-- OS1 does not need its own dedicated runbook unless its role grows.
-- The STP/HSRP alignment runbook is valuable because it connects two separate technologies into one enterprise design pattern.
-- Enterprise baseline verification and failure testing should remain separate from individual technology runbooks.
+- The enterprise lab should consume validated module runbooks rather than recreate each technology from scratch.
+- Generic runbooks should remain independent of Talos Solutions-specific addressing and interface assignments.
+- Enterprise-specific values belong in the enterprise design and implementation documentation.
+- TSOS1 uses a dedicated outside transit switch baseline because its role differs from a normal campus access switch.
+- ISP1, TSE1, and TSINF1 share the same generic IOS router baseline.
+- STP/HSRP alignment remains a dedicated design runbook because it combines Layer 2 and Layer 3 forwarding preferences.
+- Enterprise baseline verification and enterprise failure testing remain separate from individual technology runbooks.
+- Individual technology runbooks should be validated independently before being consumed by the integrated enterprise build where practical.
 
 ---
 
@@ -689,18 +747,20 @@ The distinction should remain clear:
 This required runbooks document is successful when:
 
 - Every v1 technology dependency is mapped to a runbook.
-- Exists reusable runbooks are identified.
-- Runbooks needing replacement are identified.
+- Existing reusable runbooks are identified.
+- Runbooks requiring replacement are identified.
 - In-progress runbooks are tracked.
-- Missing runbooks are clearly listed.
-- The enterprise lab build can reference this document during planning.
-- The runbook set supports the full v1 build and validation process.
-- Future runbooks are captured without expanding baseline v1 scope.
+- Missing runbooks are clearly identified.
+- Current Talos Solutions device names are used consistently.
+- The enterprise build can reference this document during implementation.
+- The active runbook set supports the complete v1 build and validation process.
+- Future runbooks are captured without expanding enterprise v1 scope.
 
 ---
 
 ## Open Questions
 
+None currently identified.
 
 ---
 
@@ -712,20 +772,21 @@ This required runbooks document is successful when:
 - `docs/04-design-decisions.md`
 - `docs/05-vlan-plan.md`
 - `docs/06-addressing-plan.md`
+- `docs/07-interface-map.md`
 - `docs/08-port-channel-plan.md`
 - `docs/09-routing-plan.md`
 - `docs/10-firewall-plan.md`
 - `docs/11-dhcp-plan.md`
+- `docs/12-management-plan.md`
 - `docs/13-build-order.md`
 - `docs/14-known-limitations.md`
 - `docs/15-future-roadmap.md`
-- `docs/07-interface-map.md`
-- `docs/12-management-plan.md`
 
 ---
 
 ## Change Log
 
-| Date | Change |
-|---|---|
-| 2026-08-30 | Initial draft |
+| Date       | Change                                                                                  |
+|------------|-----------------------------------------------------------------------------------------|
+| 2026-08-30 | Initial draft                                                                           |
+| 2026-09-10 | Updated runbook status, added baseline runbooks, and aligned current enterprise naming  |

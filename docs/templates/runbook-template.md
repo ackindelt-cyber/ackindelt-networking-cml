@@ -128,20 +128,6 @@ end
 write memory
 ```
 
-### Step 3 — Confirm Configuration Was Applied
-
-```bash
-<show running-config command>
-<feature summary command>
-```
-
-Expected result:
-
-* [ ] <Expected configuration result 1>
-* [ ] <Expected configuration result 2>
-* [ ] <Expected configuration result 3>
-* [ ] <Expected configuration result 4>
-
 ---
 
 ## Post-Configuration Validation

@@ -65,24 +65,20 @@ The firewall design uses an ASAv active/standby HA pair to provide firewall appl
 
 ## Planned Devices
 
-| Device | Suggested CML Node | Role |
-|---|---|---|
-| ISP1 | IOSv | Simulated ISP/provider router |
-| EDGE1 | IOSv | Customer edge router |
-| OS1 | IOSvL2 | Shared outside firewall transit switch |
-| FW1 | ASAv | Primary firewall in HA pair |
-| FW2 | ASAv | Secondary firewall in HA pair |
-| CORE1 | IOSvL2 | Collapsed core/distribution switch |
-| CORE2 | IOSvL2 | Collapsed core/distribution switch |
-| ASW1 | IOSvL2 | Layer 2 access switch |
-| ASW2 | IOSvL2 | Layer 2 access switch |
-| ASW3 | IOSvL2 | Layer 2 access switch |
-| INFRA1 | IOSv | Simulated centralized DHCP/infrastructure server |
-| C1 | Alpine/Desktop | User endpoint simulation |
-| C2 | Alpine/Desktop | User endpoint simulation |
-| C3 | Alpine/Desktop | User or admin endpoint simulation |
-| C4 | Alpine/Desktop | Endpoint simulation |
-| PRN1 | Alpine/Desktop | Simulated printer/IoT endpoint |
+| Device | Suggested CML Node | Role                                             |
+| -------| -------------------| -------------------------------------------------|
+| TSOS1  | IOSvL2             | Shared outside firewall transit switch           |
+| TSFW1  | ASAv               | Primary firewall in HA pair                      |
+| TSFW2  | ASAv               | Secondary firewall in HA pair                    |
+| TSCOR1 | IOSvL2             | Collapsed core/distribution switch               |
+| TSCOR2 | IOSvL2             | Collapsed core/distribution switch               |
+| TSAS1  | IOSvL2             | Layer 2 access switch                            |
+| TSAS2  | IOSvL2             | Layer 2 access switch                            |
+| TSAS3  | IOSvL2             | Layer 2 access switch                            |
+| TSINF1 | IOSv               | Simulated centralized DHCP/infrastructure server |
+| TSPC1  | Ubuntu             | User endpoint simulation                         |
+| TSPC2  | Ubuntu             | User endpoint simulation                         |
+| TSPC3  | Ubuntu             | User or admin endpoint simulation                |
 
 ---
 
@@ -95,15 +91,15 @@ ISP / WAN Simulation
         |
       EDGE1
         |
-       OS1
+      TSOS1
         |
-    FW1 / FW2
+   TSFW1 / TSFW2
         |
-  CORE1 / CORE2
+ TSCOR1 / TSCOR2
         |
-ASW1 / ASW2 / ASW3
+TSAS1 / TSAS2 / TSAS3
         |
- Clients / Printer / Infrastructure
+ TSPC1 / TSPC2 / TSPC3 / TSINF1
 ```
 
 Topology description:
@@ -212,7 +208,7 @@ In v1, OS1 is implemented as a single outside transit switch to keep the edge si
 
 ---
 
-### FW1 and FW2
+### TSFW1 and TSFW2
 
 **Role:** Active/standby routed firewall pair between EDGE1/OS1 and the campus core.
 

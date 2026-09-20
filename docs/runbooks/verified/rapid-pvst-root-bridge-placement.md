@@ -175,25 +175,6 @@ end
 write memory
 ```
 
-### Step 4 — Confirm Configuration Was Applied
-
-Run on D1 and D2.
-
-```bash
-show running-config | include ^spanning-tree mode
-show running-config | include ^spanning-tree vlan
-show spanning-tree vlan 10
-show spanning-tree vlan 20
-```
-
-Expected result:
-
-* [ ] Rapid-PVST+ is enabled.
-* [ ] D1 has STP priority `4096` for VLANs 10 and 20.
-* [ ] D2 has STP priority `8192` for VLANs 10 and 20.
-* [ ] D1 is elected root bridge for VLANs 10 and 20.
-* [ ] D2 is not root during normal operation.
-
 ---
 
 ## Post-Configuration Validation
